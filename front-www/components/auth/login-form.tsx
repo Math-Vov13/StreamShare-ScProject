@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
+import axios from "axios";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,7 @@ interface LoginResponse {
 export const LoginForm: React.FC = () => {
   const [error, setError] = useState<string | undefined>(undefined);
   const [success, setSuccess] = useState<string | undefined>(undefined);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState<boolean>(false); // Correct state management
   const router = useRouter();
 
   const form = useForm<LoginFormValues>({
@@ -54,30 +55,30 @@ export const LoginForm: React.FC = () => {
   const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
     setError(undefined);
     setSuccess(undefined);
+    setIsPending(true);  // Set to true when the request starts
 
-    startTransition(async () => {
-      try {
-        const response = await fetch("http://localhost:5000/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        });
+    try {
+      // Utilisation d'Axios pour envoyer une requête POST
+      const response = await axios.post<LoginResponse>("http://localhost:5000/auth/login", values);
 
-        const result: LoginResponse = await response.json();
-
-        if (!response.ok) {
-          setError(result.error || "Something went wrong.");
-        } else {
-          setSuccess(result.success || "Login successful!");
-          // Optionally, redirect to a protected page after login
-          router.push("/");
-        }
-      } catch (err) {
-        setError("An unexpected error occurred.");
+      // Gestion des réponses
+      if (response.status === 200) {
+        setSuccess(response.data.success || "Connexion réussie !");
+        //Optionnel : Rediriger vers une autre page après connexion
+        router.push("/");
+      } else {
+        setError(response.data.error || "Une erreur s'est produite.");
       }
-    });
+    } catch (error) {
+      // Gestion des erreurs lors de la requête
+      if (axios.isAxiosError(error) && error.response) {
+        setError(error.response.data.error || "Erreur de connexion.");
+      } else {
+        setError("Une erreur imprévue est survenue.");
+      }
+    } finally {
+      setIsPending(false);  // Reset to false when the request finishes
+    }
   };
 
   return (
@@ -99,7 +100,7 @@ export const LoginForm: React.FC = () => {
                   <FormControl>
                     <Input
                       type="text"
-                      disabled={isPending}
+                      disabled={isPending}  // Disable input when pending
                       placeholder="John Doe"
                       {...field}
                     />
@@ -117,7 +118,7 @@ export const LoginForm: React.FC = () => {
                   <FormControl>
                     <Input
                       type="email"
-                      disabled={isPending}
+                      disabled={isPending}  // Disable input when pending
                       placeholder="johndoe@example.com"
                       {...field}
                     />
@@ -135,7 +136,7 @@ export const LoginForm: React.FC = () => {
                   <FormControl>
                     <Input
                       type="password"
-                      disabled={isPending}
+                      disabled={isPending}  // Disable input when pending
                       placeholder="********"
                       {...field}
                     />
@@ -148,11 +149,11 @@ export const LoginForm: React.FC = () => {
           <FormError message={error} />
           <FormSuccess message={success} />
           <Button
-            disabled={isPending}
+            disabled={isPending}  // Disable button when pending
             className="flex w-full justify-center items-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#a558c8] to-violet-600 hover:opacity-75"
             type="submit"
           >
-            Se connecter
+            {isPending ? "Connexion en cours..." : "Se connecter"} {/* Show loading state */}
           </Button>
         </form>
       </Form>
