@@ -65,7 +65,7 @@ export const LoginForm: React.FC = () => {
       if (response.status === 200) {
         setSuccess(response.data.success || "Connexion réussie !");
         //Optionnel : Rediriger vers une autre page après connexion
-        router.push("/");
+        router.push("/profiles");
       } else {
         setError(response.data.error || "Une erreur s'est produite.");
       }
@@ -96,9 +96,10 @@ export const LoginForm: React.FC = () => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel className="text-white">Name</FormLabel>
                   <FormControl>
                     <Input
+                      className="text-white bg-zinc-800 border-none"
                       type="text"
                       disabled={isPending}  // Disable input when pending
                       placeholder="John Doe"
@@ -114,9 +115,10 @@ export const LoginForm: React.FC = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-white">Email</FormLabel>
                   <FormControl>
                     <Input
+                      className="text-white bg-zinc-800 border-none"
                       type="email"
                       disabled={isPending}  // Disable input when pending
                       placeholder="johndoe@example.com"
@@ -132,9 +134,10 @@ export const LoginForm: React.FC = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel className="text-white">Password</FormLabel>
                   <FormControl>
                     <Input
+                      className="text-white bg-zinc-800 border-none"
                       type="password"
                       disabled={isPending}  // Disable input when pending
                       placeholder="********"

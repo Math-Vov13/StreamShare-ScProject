@@ -69,3 +69,7 @@ app.get('/auth/logout', (req, res) => {
 app.listen(5000, () => {
   console.log('API running on http://localhost:5000');
 });
+
+app.get('/', (req, res) => {
+  res.send('Welcome to the API!');
+});

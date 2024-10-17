@@ -9,6 +9,11 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+		clipPath: {
+			'custom-pentagon': 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)',
+			'custom-hexagon': 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
+			'custom-diamond': 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -58,6 +63,9 @@ const config: Config = {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+	require("tailwindcss-animate"),
+	require("tailwind-clip-path"),
+],
 };
 export default config;
