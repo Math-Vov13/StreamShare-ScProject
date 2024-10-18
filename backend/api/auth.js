@@ -1,8 +1,11 @@
 // backend/api/auth.js
 import express from 'express';
 import cors from 'cors';
+import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken'; // For token-based authentication
-import bcrypt from 'bcryptjs';   // For password hashing
+import bcrypt from 'bcryptjs';// For password hashing
+const bycryptSalt = bcrypt.genSaltSync(10);
+import User from '../models/User.js';
 
 const app = express();
 const SECRET_KEY = 'your_secret_key'; // Secret key for signing JWT tokens
@@ -13,11 +16,30 @@ app.use(cors({
   origin: 'http://localhost:3000',
 }));
 
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URL)
+
 // Mocked user data (replace with a database in real-world applications)
 const users = [
   { name: 'John Doe', email: 'johndoe@example.com', password: bcrypt.hashSync('password123', 10) }, // Hashed password
 ];
 
+app.post('/auth/register', async (req, res) => {
+  const { name, email, password } = req.body;
+  try {
+    const userInfo = await User.create({ // Create user in database
+      name, 
+      email, 
+      password: bcrypt.hashSync(password, bycryptSalt) 
+    });
+  } catch (error) {   // Au cas ou il y a une erreur
+    return res.status(409).json({ error: error.message });
+  }
+  // Check if user already exists
+  if (users.find((u) => u.email === email)) {
+    return res.status(409).json({ error: 'Cet utilisateur existe déjà' });
+  }
+})
 // Login endpoint
 app.post('/auth/login', (req, res) => {
   const { email, password } = req.body;
@@ -46,7 +68,9 @@ const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   
-  if (!token) return res.sendStatus(403); // If there's no token, return 'Forbidden'
+  if (!token) 
+    return res.sendStatus(403);// If there's no token, return 'Forbidden'
+
 
   jwt.verify(token, SECRET_KEY, (err, user) => {
     if (err) return res.sendStatus(403); // If token is invalid, return 'Forbidden'

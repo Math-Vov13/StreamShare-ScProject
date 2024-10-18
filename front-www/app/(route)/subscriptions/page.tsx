@@ -10,7 +10,7 @@ const Subscriptions = () => {
         <div className="w-full h-screen bg-gradient-to-b from-black to-purple-500 flex flex-col items-center">
             <div className="flex flex-col items-center mt-10">
                 <Image
-                    src="/logo-streamshare.png" // Replace with your logo path
+                    src="/logo-streamshare-form.png" // Replace with your logo path
                     alt="Streamshare Logo"
                     width={500}
                     height={500}
@@ -21,7 +21,7 @@ const Subscriptions = () => {
             </h2>
             <div className="flex flex-col items-centerjustify-center gap-4 mt-10 lg:flex-row overflow-auto">
                 <div className="flex flex-col items-center justify-center w-80 bg-zinc-800 rounded-xl shadow-xl p-6 text-center text-white">
-                    <div className="w-[100px] h-[100px] bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-purple-300 to-violet-500 clip-path-custom-diamond"></div>
+                    <div className="h-[100px] w-[100px] bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-purple-300 to-violet-500 clip-path-custom-diamond"></div>
                     <h3 className="text-2xl font-semibold text-purple-400 mt-4">Light</h3>
                     <p className="text-xl mt-4">
                         <span className="font-bold">4.99€</span>/mois
