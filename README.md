@@ -6,11 +6,10 @@ Ce projet consiste en la création d'un site web de streaming vidéo permettant 
 
 ## Nom du groupe
 
-<li> Rayane ACHOUCHI : Développeur Front-End </li>
-<li> Yann THON : Développeur Gestion des Bucket de la DataBase AWS</li>
-<li> Joao MARQUIS-DINIS : Designer UX/UI</li>
-<li> Cédric HU : Hébergement du site AWS et Présentation de final </li>
-<li> Mathéo Vovard: Hébergement du site AWS et Développeur Backend </li>
+<li><u>Rayane ACHOUCHI:</u> Développeur Front-End </li>
+<li><b><u>Mathéo Vovard:</u> Développeur Backend (gestion et sécurité de l'API) + déploiement + gestion du projet</b></li>
+<li><u>Joao MARQUIS-DINIS:</u> Designer UX/UI </li>
+<li><u>Cédric HU:</u> Création et Gestion des Bases de Données sur AWS </li>
 
 ## Fonctionnalités principales
 
@@ -39,9 +38,11 @@ Ce projet consiste en la création d'un site web de streaming vidéo permettant 
 ## Technologie utilisée 
 
 ### Backend :
+
 <ul>  
-    <li>Langages: Node.js / Python</li>
-    <li>Framework: Express / Flask</li>
+    <li>Langages: TypeScript</li>
+    <li>Framework: Express, Node.js</li>
+    <li>Bibliothèques: nodemon, concurrently, yup</li>
     <li>Base de donnée: MongoDB / PostgreSQL</li>
     <li>Authentification: NextAuth / OAuth2</li>
     <li>API: API RESTful pour la gestion des utilisateurs, des vidéos, des commentaires, etc... </li>
@@ -53,10 +54,10 @@ Ce projet consiste en la création d'un site web de streaming vidéo permettant 
 <li>Langages: HTML5, CSS3, JavaScript </li>
 <li>Framework: React</li>
 <li>Bibliothèques: ShadcnUI, TailwindCSS</li>
-<li>Player Vidéo: Video.js / Plyr.js</li>
+<li>Lecteur Vidéo: Video.js / Plyr.js</li>
 </ul>
 
-### Streaming Vidéo :
+### Streaming Video :
 <ul>
 <li>Protocole: HLS (HTTP Live Streaming)</li>
 <li>CDN (Content Delivery Network) pour la distribution efficace du contenu</li>
@@ -65,7 +66,7 @@ Ce projet consiste en la création d'un site web de streaming vidéo permettant 
 ### Hébergement et Serveur :
 <ul>
 <li>Server web : Nginx / Apache</li>
-<li>Hébergement : AWS</li>
+<li>Hébergement : AWS, Heroku</li>
 </ul>
 <hr>
 
@@ -171,7 +172,6 @@ yarn install
 ```bash
 npm test
 yarn test
-pytest #Pour Python
 ```
 2. Tests d'intégration pour vérifier les fonctionnalités principales du site (authentification, streaming, etc...)
 
@@ -192,7 +192,3 @@ pytest #Pour Python
 <li> Nom de l'Auteur : Rayane</li>
 <li> Email : rayane.achouchi@efrei.net</li>
 <li> GitHub : https://github.com/Enayarefrei</li>
-
-
-
-
