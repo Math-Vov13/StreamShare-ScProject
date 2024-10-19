@@ -10,7 +10,6 @@ import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import React from "react";
 import { CardWrapper } from "@/components/auth/card-wrapper";
 import {
   Form,
@@ -22,54 +21,63 @@ import {
 } from "@/components/ui/form";
 import { FormSuccess } from "@/components/auth/form-success";
 import { FormError } from "@/components/auth/form-error";
-import { LoginSchema } from "@/schemas";
+import { RegisterSchema } from "@/schemas";
 
 // Define the type for the form values based on Zod schema
-type LoginFormValues = z.infer<typeof LoginSchema>;
+type RegisterFormValues = z.infer<typeof RegisterSchema>;
 
 // Define the type for the response from the login API
-interface LoginResponse {
+interface RegisterResponse {
   error?: string;
   success?: string;
+  token?: string;  // Add token field
   user?: {
     name: string;
     email: string;
   };
 }
 
-export const LoginForm: React.FC = () => {
+export const RegisterForm: React.FC = () => {
   const [error, setError] = useState<string | undefined>(undefined);
   const [success, setSuccess] = useState<string | undefined>(undefined);
-  const [isPending, setIsPending] = useState<boolean>(false); // Correct state management
+  const [isPending, setIsPending] = useState<boolean>(false);
   const router = useRouter();
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(RegisterSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     },
   });
 
-  const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
+  const onSubmit: SubmitHandler<RegisterFormValues> = async (values) => {
     setError(undefined);
     setSuccess(undefined);
     setIsPending(true);  // Set to true when the request starts
 
     try {
-      // Utilisation d'Axios pour envoyer une requête POST
-      const response = await axios.post<LoginResponse>("http://localhost:5000/auth/login", values);
+      // Send request to the API
+      const response = await axios.post<RegisterResponse>("http://localhost:5000/auth/register", values);
 
-      // Gestion des réponses
-      if (response.status === 200) {
-        setSuccess(response.data.success || "Connexion réussie !");
-        //Optionnel : Rediriger vers une autre page après connexion
-        router.push("/profiles");
+      if (response.status === 201) {
+        // Store the token in localStorage
+        const token = response.data.token;
+        if (token) {
+          localStorage.setItem('token', token);
+        }
+
+        // Optionally, display a success message
+        setSuccess("Inscription réussie!");
+
+        // Redirect to the subscriptions page
+        router.push("/subscriptions");
       } else {
         setError(response.data.error || "Une erreur s'est produite.");
       }
     } catch (error) {
-      // Gestion des erreurs lors de la requête
+      // Handle request errors
       if (axios.isAxiosError(error) && error.response) {
         setError(error.response.data.error || "Erreur de connexion.");
       } else {
@@ -82,14 +90,33 @@ export const LoginForm: React.FC = () => {
 
   return (
     <CardWrapper
-      headerLabel="Content de vous revoir 😊🍿"
-      backButtonLabel="Je ne suis pas abonné à SteamShare"
-      backButtonHref="/register"
+      headerLabel="Bienvenue sur StreamShare 😊🍿"
+      backButtonLabel="Je suis déjà abonné à StreamShare"
+      backButtonHref="/login"
       showSocialLogin
     >
       <Form {...form}>
         <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-4 w-full">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-white">Nom</FormLabel>
+                  <FormControl>
+                    <Input
+                      className="text-white bg-zinc-800 border-none"
+                      type="text"
+                      disabled={isPending}
+                      placeholder="John Doe"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage className="text-red-500" />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="email"
@@ -100,7 +127,7 @@ export const LoginForm: React.FC = () => {
                     <Input
                       className="text-white bg-zinc-800 border-none"
                       type="email"
-                      disabled={isPending}  // Disable input when pending
+                      disabled={isPending}
                       placeholder="johndoe@example.com"
                       {...field}
                     />
@@ -114,12 +141,12 @@ export const LoginForm: React.FC = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-white">Password</FormLabel>
+                  <FormLabel className="text-white">Mot de passe</FormLabel>
                   <FormControl>
                     <Input
                       className="text-white bg-zinc-800 border-none"
                       type="password"
-                      disabled={isPending}  // Disable input when pending
+                      disabled={isPending}
                       placeholder="********"
                       {...field}
                     />
@@ -132,11 +159,11 @@ export const LoginForm: React.FC = () => {
           <FormError message={error} />
           <FormSuccess message={success} />
           <Button
-            disabled={isPending}  // Disable button when pending
+            disabled={isPending}
             className="flex w-full justify-center items-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#a558c8] to-violet-600 hover:opacity-75"
             type="submit"
           >
-            {isPending ? "Connexion en cours..." : "Se connecter"} {/* Show loading state */}
+            {isPending ? "Inscription en cours..." : "Créer votre compte"}
           </Button>
         </form>
       </Form>

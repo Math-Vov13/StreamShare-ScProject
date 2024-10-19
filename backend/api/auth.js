@@ -4,8 +4,10 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken'; // For token-based authentication
 import bcrypt from 'bcryptjs';// For password hashing
-const bycryptSalt = bcrypt.genSaltSync(10);
 import User from '../models/User.js';
+import dotenv from 'dotenv';
+dotenv.config();
+
 
 const app = express();
 const SECRET_KEY = 'your_secret_key'; // Secret key for signing JWT tokens
@@ -14,53 +16,67 @@ app.use(express.json());
 
 app.use(cors({
   origin: 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URL)
-
-// Mocked user data (replace with a database in real-world applications)
-const users = [
-  { name: 'John Doe', email: 'johndoe@example.com', password: bcrypt.hashSync('password123', 10) }, // Hashed password
-];
+mongoose.connect("mongodb+srv://thomashelbysigma01:F9kC3agPSlRLoUY4@streamsharecluster.vsxci.mongodb.net/?retryWrites=true&w=majority&appName=StreamShareCluster");
 
 app.post('/auth/register', async (req, res) => {
   const { name, email, password } = req.body;
+
   try {
-    const userInfo = await User.create({ // Create user in database
-      name, 
-      email, 
-      password: bcrypt.hashSync(password, bycryptSalt) 
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ error: 'Cet utilisateur existe déjà' });
+    }
+
+    // Hash the password
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
+    // Create a new user in the database
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
     });
-  } catch (error) {   // Au cas ou il y a une erreur
-    return res.status(409).json({ error: error.message });
+
+    // Generate JWT token
+    const token = jwt.sign({ email: user.email, id: user._id }, SECRET_KEY, { expiresIn: '10h' });
+
+    // Send the token as a response (for auto-login after registration)
+    res.status(201).json({ success: 'Registration successful', token, user: { name: user.name, email: user.email } });
+  } catch (error) {
+    return res.status(500).json({ error: 'Something went wrong' });
   }
-  // Check if user already exists
-  if (users.find((u) => u.email === email)) {
-    return res.status(409).json({ error: 'Cet utilisateur existe déjà' });
-  }
-})
-// Login endpoint
-app.post('/auth/login', (req, res) => {
+});
+
+app.post('/auth/login', async (req, res) => {
   const { email, password } = req.body;
 
-  // Find the user by email
-  const user = users.find((u) => u.email === email);
+  try {
+    // Find the user by email in the database
+    const user = await User.findOne({ email });
 
-  if (!user) {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
 
-  // Compare the hashed password
-  const isPasswordValid = bcrypt.compareSync(password, user.password);
+    // Compare the hashed password stored in the database with the provided password
+    const isPasswordValid = bcrypt.compareSync(password, user.password);
 
-  if (isPasswordValid) {
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
     // Generate JWT token for authenticated user
-    const token = jwt.sign({ name: user.name, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
-    return res.json({ success: 'Login successful!', token });
-  }
+    const token = jwt.sign({ id: user._id, email: user.email }, SECRET_KEY, { expiresIn: '10h' });
 
-  return res.status(401).json({ error: 'Invalid credentials' });
+    return res.json({ success: 'Login successful!', token, user: { name: user.name, email: user.email } });
+  } catch (error) {
+    return res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // Middleware to check JWT token (protected routes)
@@ -83,11 +99,6 @@ const authenticateToken = (req, res, next) => {
 app.get('/auth/user', authenticateToken, (req, res) => {
   // Return authenticated user's info
   res.json({ name: req.user.name, email: req.user.email });
-});
-
-// Logout route (In real-world cases, client-side just deletes the token)
-app.get('/auth/logout', (req, res) => {
-  res.json({ success: 'Logout successful!' });
 });
 
 app.listen(5000, () => {
