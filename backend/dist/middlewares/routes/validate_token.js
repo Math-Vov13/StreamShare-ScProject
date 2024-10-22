@@ -29,18 +29,17 @@ const validate_group_token = (req, res, next) => __awaiter(void 0, void 0, void 
         return;
     }
     try {
-        const decoded = yield (0, auth_func_1.decodeToken)(token);
-        if (!(yield (0, groups_func_1.get_group_by_id)(decoded.id))) { // TODO: vérifier la date d'expiration aussi
+        const decoded = yield (0, auth_func_1.decodeToken)(token, auth_func_1.Token_Type.Group);
+        const active_group = yield (0, groups_func_1.get_group_by_id)(decoded.id);
+        if (!active_group) { // Token invalide ou expiré
             res.clearCookie("token");
             res.status(403).json({ detail: "Your credentials is not valid or is expired!" });
             return;
         }
-        req.group = { id: decoded.id }; // Ajoute l'id dans le Headers
+        req.group = active_group; // Ajoute les data du groupe dans le Headers
         next();
     }
     catch (error) {
-        console.log("Handle Error");
-        console.log("Erreur:", error);
         res.clearCookie("token");
         res.status(403).json({ detail: "Your credentials is not valid or is expired!" });
         return;
@@ -55,13 +54,14 @@ const validate_user_token = (req, res, next) => __awaiter(void 0, void 0, void 0
         return;
     }
     try {
-        const decoded = yield (0, auth_func_1.decodeToken)(token);
-        if (!(yield (0, users_func_1.get_user_by_id)(decoded.id))) { // TODO: vérifier la date d'expiration aussi
+        const decoded = yield (0, auth_func_1.decodeToken)(token, auth_func_1.Token_Type.User);
+        const active_user = yield (0, users_func_1.get_user_by_id)(decoded.usrid);
+        if (!active_user) { // Token invalide ou expiré
             res.clearCookie("tokenU");
             res.status(403).json({ detail: "Your User credentials is not valid or is expired!" });
             return;
         }
-        req.user = { id: decoded.id }; // Ajoute l'id dans le Headers
+        req.user = active_user; // Ajoute l'id dans le Headers
         next();
     }
     catch (error) {

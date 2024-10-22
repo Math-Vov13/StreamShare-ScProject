@@ -1,14 +1,16 @@
 import * as yup from "yup";
 
-export const group_schema = yup.object({
-    Id: yup.number(),
-    Name: yup.string().required(),
-    Mail: yup.string().email().required(),
-    Password: yup.string().required(),
-    Subscription: yup.string().required(),
-    "Created-date": yup.date(),
-    "Updated-at": yup.date()
-}).noUnknown();
+export const table_group_name = "Account";
+
+export type group_type = {
+    id: string,
+    name: string,
+    password: string,
+    email: string,
+    subscription: string,
+    created_at: string
+}
+
 
 
 export const create_group_schema = yup.object({

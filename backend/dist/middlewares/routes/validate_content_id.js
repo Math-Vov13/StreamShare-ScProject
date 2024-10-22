@@ -10,11 +10,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validate_content_id = void 0;
-const media_func_1 = require("../../models/media_func");
+const content_func_1 = require("../../models/content_func");
 const validate_content_id = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const content_id = parseInt(req.params.content_id);
+    const content_id = req.params.content_id;
     try {
-        if (yield (0, media_func_1.get_content_by_id)(content_id)) { // Si l'Id du média existe
+        if (yield (0, content_func_1.get_content_by_id)(content_id)) { // Si l'Id du média existe
             next();
         }
         else {

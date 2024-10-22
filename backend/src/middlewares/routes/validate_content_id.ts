@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { get_content_by_id } from "../../models/media_func";
+import { get_content_by_id } from "../../models/content_func";
 
 
 export const validate_content_id = async (req: Request, res: Response, next: NextFunction) => {
-    const content_id = parseInt(req.params.content_id);
+    const content_id = req.params.content_id;
 
     try {
         if (await get_content_by_id(content_id)) { // Si l'Id du média existe

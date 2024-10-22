@@ -23,21 +23,19 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.get_content_schema = exports.tags_schema = exports.genres_schema = exports.content_schema = void 0;
+exports.get_content_schema = exports.tags_schema = exports.categories_schema = exports.content_table_name = void 0;
 const yup = __importStar(require("yup"));
-exports.content_schema = yup.object({
-    Id: yup.number(),
-    Name: yup.string().required(),
-    Mail: yup.string().email().required(),
-    Password: yup.string().required(),
-    Subscription: yup.string().required(),
-    "Created-date": yup.date(),
-    "Updated-at": yup.date()
-}).noUnknown();
-exports.genres_schema = yup.mixed().oneOf(["Science Fiction", "Action", "Crime", "Drama", "Thriller", "Romance", "Adventure", "Animation", "Superhero", "Fantasy", "Horror", "Musical", "Family"]);
+exports.content_table_name = "Movies";
+var movie_genre;
+(function (movie_genre) {
+    movie_genre[movie_genre["Anime"] = 0] = "Anime";
+    movie_genre[movie_genre["Movie"] = 1] = "Movie";
+    movie_genre[movie_genre["Serie"] = 2] = "Serie";
+})(movie_genre || (movie_genre = {}));
+exports.categories_schema = yup.mixed().oneOf(["Science Fiction", "Action", "Crime", "Drama", "Thriller", "Romance", "Adventure", "Animation", "Superhero", "Fantasy", "Horror", "Musical", "Family"]);
 exports.tags_schema = yup.string().nullable();
 exports.get_content_schema = yup.object({
     FulfilName: yup.string(),
-    Genres: yup.array(exports.genres_schema),
+    Categories: yup.array(exports.categories_schema),
     Tags: yup.array(exports.tags_schema)
 }).noUnknown();

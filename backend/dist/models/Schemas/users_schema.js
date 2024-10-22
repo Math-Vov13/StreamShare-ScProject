@@ -23,30 +23,26 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.update_user_schema = exports.create_user_schema = exports.user_login_schema = exports.user_schema = void 0;
+exports.update_user_schema = exports.create_user_schema = exports.user_login_schema = exports.table_user_name = void 0;
 const yup = __importStar(require("yup"));
-exports.user_schema = yup.object({
-    "id": yup.number(),
-    "admin": yup.bool().required(),
-    "name": yup.string().required(),
-    "image": yup.string().url().required(),
-    "Type": yup.mixed().oneOf(["Adult", "Children"]).required(),
-    "created-date": yup.date(),
-    "preferences": yup.array().required(),
-    "group-id": yup.number().required()
-}).noUnknown();
+exports.table_user_name = "Users";
+var account_type;
+(function (account_type) {
+    account_type[account_type["Adult"] = 0] = "Adult";
+    account_type[account_type["Children"] = 1] = "Children";
+})(account_type || (account_type = {}));
 exports.user_login_schema = yup.object({
     Name: yup.string().required()
 }).noUnknown();
 exports.create_user_schema = yup.object({
     Name: yup.string().required(),
-    Image: yup.string().required(),
+    Thumbnail: yup.string().notRequired(), // si n'est pas fournit = 'undefined' ==> basique thumbnail
     Type: yup.mixed().oneOf(["Adult", "Children"])
 }).noUnknown();
 exports.update_user_schema = yup.object({
     Name: yup.string().nullable(),
-    Image: yup.string().nullable(),
-    Preferences: yup.array().nullable()
+    Thumbnail: yup.string().nullable(),
+    Interests: yup.array().nullable()
 }).test('at-least-one', 'At least one field must not be null', (value) => {
     // Vérifie si au moins une des valeurs n'est pas null
     return Object.values(value).some(val => val !== null && val !== undefined);

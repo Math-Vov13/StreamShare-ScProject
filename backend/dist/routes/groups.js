@@ -16,14 +16,10 @@ const data_validation_1 = require("../middlewares/routes/data_validation");
 const groups_schema_1 = require("../models/Schemas/groups_schema");
 const router = (0, express_1.Router)();
 router.get("/", validate_token_1.validate_group_token, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // const group_data = await get_group_by_id(req.group?.id as string);
     var _a;
-    const group_data = yield (0, groups_func_1.get_group_by_id)((_a = req.group) === null || _a === void 0 ? void 0 : _a.id);
-    if (!group_data) {
-        res.sendStatus(404);
-        return;
-    }
-    ; // Not Found!
-    res.json({ response: group_data });
+    // if (! group_data) { res.sendStatus(404); return; }; // Not Found!
+    res.json({ response: (_a = req.group) === null || _a === void 0 ? void 0 : _a.id });
     return;
 }));
 router.post("/", (0, data_validation_1.body_data_validation)(groups_schema_1.create_group_schema), (req, res) => __awaiter(void 0, void 0, void 0, function* () {

@@ -20,11 +20,11 @@ const data_validation_1 = require("../middlewares/routes/data_validation");
 const users_schema_1 = require("../models/Schemas/users_schema");
 // Router
 const router = (0, express_1.Router)();
-router.post("/:group_id/users/auth", validate_group_id_1.validate_group_id, validate_token_1.validate_group_token, (0, data_validation_1.query_data_validation)(users_schema_1.user_login_schema), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/:group_id/users/auth", validate_token_1.validate_group_token, validate_group_id_1.validate_group_id, (0, data_validation_1.query_data_validation)(users_schema_1.user_login_schema), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const time_age_UserToken = 1 * 24 * 60 * 60 * 1000; // ==> 1 jour
     const { Name } = req.query;
-    const group_id = parseInt(req.params.group_id);
+    const group_id = req.params.group_id;
     // Security
     if (((_a = req.group) === null || _a === void 0 ? void 0 : _a.id) !== group_id) {
         res.sendStatus(403); // Quelqu'un essaie de se connecter au groupe sans l'autorisation
@@ -38,12 +38,12 @@ router.post("/:group_id/users/auth", validate_group_id_1.validate_group_id, vali
     // Cookies
     const accessToken = yield (0, auth_func_1.generate_userToken)(group_id, user_data.id);
     res.cookie("tokenU", accessToken, { maxAge: time_age_UserToken, httpOnly: true });
-    res.status(201).json({ response: user_data.id });
+    res.sendStatus(201);
     return;
 }));
-router.delete("/:group_id/users/auth", validate_group_id_1.validate_group_id, validate_token_1.validate_group_token, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.delete("/:group_id/users/auth", validate_token_1.validate_group_token, validate_group_id_1.validate_group_id, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const group_id = parseInt(req.params.group_id);
+    const group_id = req.params.group_id;
     // Security
     if (((_a = req.group) === null || _a === void 0 ? void 0 : _a.id) !== group_id) {
         res.sendStatus(403); // Quelqu'un essaie de se connecter au groupe sans l'autorisation

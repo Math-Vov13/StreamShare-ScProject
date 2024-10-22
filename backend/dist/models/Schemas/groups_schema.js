@@ -23,17 +23,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.group_login_schema = exports.update_group_schema = exports.create_group_schema = exports.group_schema = void 0;
+exports.group_login_schema = exports.update_group_schema = exports.create_group_schema = exports.table_group_name = void 0;
 const yup = __importStar(require("yup"));
-exports.group_schema = yup.object({
-    Id: yup.number(),
-    Name: yup.string().required(),
-    Mail: yup.string().email().required(),
-    Password: yup.string().required(),
-    Subscription: yup.string().required(),
-    "Created-date": yup.date(),
-    "Updated-at": yup.date()
-}).noUnknown();
+exports.table_group_name = "Account";
 exports.create_group_schema = yup.object({
     Name: yup.string().required(),
     Mail: yup.string().email().required(),

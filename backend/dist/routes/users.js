@@ -23,14 +23,20 @@ const groups_func_1 = require("../models/groups_func");
 const router = (0, express_1.Router)();
 router.get("/:group_id/users", validate_token_1.validate_group_token, validate_group_id_1.validate_group_id, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const group_id = parseInt(req.params.group_id);
+    const group_id = req.params.group_id;
     const { Name } = req.query;
     if (((_a = req.group) === null || _a === void 0 ? void 0 : _a.id) !== group_id) {
         res.sendStatus(403); // Quelqu'un essaie de se connecter au groupe sans l'autorisation
         return;
     }
     if (!Name) { // Si 'Name' est vide, envoyé la liste de tous les utilisateurs
-        res.json({ response: yield (0, users_func_1.get_users_in_group)(group_id) });
+        const users_list = yield (0, users_func_1.get_users_in_group)(group_id);
+        if (!users_list) {
+            res.sendStatus(504);
+        }
+        else {
+            res.json({ response: yield (0, users_func_1.get_users_in_group)(group_id) });
+        }
         return;
     }
     const User_data = yield (0, users_func_1.get_user)(group_id, Name);
@@ -45,13 +51,13 @@ router.get("/:group_id/users", validate_token_1.validate_group_token, validate_g
 }));
 router.post("/:group_id/users", validate_token_1.validate_group_token, validate_group_id_1.validate_group_id, (0, data_validation_1.body_data_validation)(users_schema_1.create_user_schema), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const group_id = parseInt(req.params.group_id);
-    const { Name, ProfileImage, Type } = req.body;
+    const group_id = req.params.group_id;
+    const { Name, Thumbnail, Type } = req.body;
     if (((_a = req.group) === null || _a === void 0 ? void 0 : _a.id) !== group_id) {
         res.sendStatus(403); // Quelqu'un essaie de se connecter au groupe sans l'autorisation
         return;
     }
-    const created = yield (0, users_func_1.create_user)(group_id, Name, ProfileImage, Type);
+    const created = yield (0, users_func_1.create_user)(group_id, Name, Thumbnail, Type);
     if (created) {
         res.status(201).send({ detail: "User created!" });
         return;
@@ -64,7 +70,7 @@ router.post("/:group_id/users", validate_token_1.validate_group_token, validate_
 }));
 router.put("/:group_id/users", validate_token_1.validate_group_token, validate_group_id_1.validate_group_id, (0, data_validation_1.query_data_validation)(users_schema_1.user_login_schema), (0, data_validation_1.body_data_validation)(users_schema_1.update_user_schema), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const group_id = parseInt(req.params.group_id);
+    const group_id = req.params.group_id;
     const { Name } = req.query;
     const Changes = req.body;
     if (((_a = req.group) === null || _a === void 0 ? void 0 : _a.id) !== group_id) {
@@ -89,17 +95,16 @@ router.put("/:group_id/users", validate_token_1.validate_group_token, validate_g
     }
 }));
 router.delete("/:group_id/users", validate_token_1.validate_group_token, validate_group_id_1.validate_group_id, (0, data_validation_1.query_data_validation)(users_schema_1.user_login_schema), (0, data_validation_1.body_data_validation)(groups_schema_1.group_login_schema), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
-    const group_id = parseInt(req.params.group_id);
+    var _a;
+    const group_id = req.params.group_id;
     const { Name } = req.query;
     const { Mail, Password } = req.body;
     if (((_a = req.group) === null || _a === void 0 ? void 0 : _a.id) !== group_id) {
         res.sendStatus(403); // Quelqu'un essaie de se connecter au groupe sans l'autorisation
         return;
     }
-    const group_found = yield (0, groups_func_1.get_group)(Mail, Password);
-    if ((group_found === null || group_found === void 0 ? void 0 : group_found.id) !== ((_b = req.group) === null || _b === void 0 ? void 0 : _b.id)) { // Mail ou Password du groupe non valide!
-        res.sendStatus(403); // Quelqu'un essaie de se connecter au groupe sans l'autorisation
+    if (!(yield (0, groups_func_1.isGroup_Valide)(req.group, Mail, Password))) {
+        res.sendStatus(403); // Mail ou Mot de Passe invalide !
         return;
     }
     const user_target = yield (0, users_func_1.get_user)(group_id, Name);

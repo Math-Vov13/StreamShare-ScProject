@@ -1,78 +1,117 @@
-import { Accounts, Accounts_DB_Type, Accounts_DB_Type_Nullable} from "./fake-db";
-import { update_user_schema } from "./Schemas/users_schema";
+import { update_user_schema, user_type, table_user_name } from "./Schemas/users_schema";
+import { query } from "../models/db-connector";
 import { format } from 'date-fns';
+import { QueryResult } from "pg";
 
 
-const max_users_by_group = 5;
 
+export async function get_user(group_id: user_type["group_id"], name: user_type["name"]) {
+    try {
+        const results: QueryResult<user_type> = await query(
+            `SELECT * FROM ${table_user_name}
+            WHERE group_id='${group_id}'
+            AND name='${name}'`); //Requête
 
-export async function get_user(group_id: Accounts_DB_Type["group-id"], name: Accounts_DB_Type["name"]) {
-    return Accounts.find(user => user["group-id"] === group_id && user["name"] === name);
-}
+        return (results.rowCount && results.rowCount > 0)? results.rows[0] : null;
 
-export async function get_user_by_id(account_id: Accounts_DB_Type["id"]) {
-    return Accounts.find(user => user.id === account_id);
-}
-
-export async function get_users_in_group(group_id: Accounts_DB_Type["group-id"]) {
-    return Accounts.filter(user => user["group-id"] === group_id);
-}
-
-
-export async function create_user(group_id: Accounts_DB_Type["group-id"], name: Accounts_DB_Type["name"], image: Accounts_DB_Type["image"], account_type: Accounts_DB_Type["type"]) {
-    if (await get_user(group_id, name)) {
-        return false; // L'utilisateur existe déjà dans le groupe !!
+    } catch (db_error) {
+        // Log l'erreur
+        console.log("DB ERROR:", db_error)
+        return null
     }
-    
-    const group = await get_users_in_group(group_id)
-    const group_length = group?.length
-    if (group_length == max_users_by_group) { // Le nombre maximum d'utilisateur dans ce groupe est atteint !
-        return false;
+}
+
+export async function get_user_by_id(account_id: user_type["id"]) {
+    try {
+        const results: QueryResult<user_type> = await query(
+            `SELECT * FROM ${table_user_name}
+            WHERE id='${account_id}'`); //Requête
+
+        return (results.rowCount && results.rowCount > 0)? results.rows[0] : null;
+
+    } catch (db_error) {
+        // Log l'erreur
+        console.log("DB ERROR:", db_error)
+        return null
     }
+}
 
-    const currentDate = new Date();
-    Accounts.push({
-        "id": Accounts.length + 1,
-        "admin": group_length == 0,
-        "name": name,
-        "image": image,
-        "type": account_type,
-        "created-date": format(currentDate, 'yyyy-MM-dd'),
-        "preferences": [],
-        "group-id": group_id
-    });
+export async function get_users_in_group(group_id: user_type["group_id"]) {
+    try {
+        const results: QueryResult<user_type> = await query(
+            `SELECT * FROM ${table_user_name}
+            WHERE group_id='${group_id}'`); //Requête
 
-    return true;
+        return results.rows
+        
+    } catch (db_error) {
+        // Log l'erreur
+        console.log("DB ERROR:", db_error)
+        return null
+    }
 }
 
 
-export async function update_user(id: Accounts_DB_Type["id"], changes: any) {
+export async function create_user(group_id: user_type["group_id"], name: user_type["name"], image: user_type["thumbnail"], account_type: user_type["type"]) {
+    try {
+        const results: QueryResult<user_type> = await query(
+            `INSERT INTO ${table_user_name}(name, thumbnail, group_id, type)
+            VALUES('${name}', '${image}', '${group_id}', '${account_type}')
+            RETURNING id;`); // Requête
+
+        return results;
+        
+    } catch (db_error) {
+        // Log l'erreur
+        console.log("DB ERROR:", db_error)
+        return null
+    }
+}
+
+
+export async function update_user(id: user_type["id"], changes: Array<string>) {
     let user_data = await get_user_by_id(id)
     if (!user_data) {
         return false; // L'utilisateur n'existe pas ?!
     }
+    return true;
 
-    if (changes["id"] || changes["admin"] || changes["created-date"] || changes["type"] || changes["group-id"]) {
-        return false; // Une requête malveillante veut modifier les infos d'id et/ou admin ?!
-    }
+    // const setClause = Object.keys(changes)
+    //     .map(key => `${key} = $1`)
+    //     .join(', ');
 
-    user_data.name = changes.Name || user_data.name
-    user_data.image = changes.Image || user_data.image
-    user_data.preferences = changes.Preferences || user_data.preferences
+    // try {
+    //     const results: QueryResult<user_type> = await query(
+    //         `UPDATE ${table_user_name}
+    //         SET ${setClause}
+    //         WHERE id=${id}`); // Requête
+
+    // } catch (db_error) {
+    //     // Log l'erreur
+    //     console.log("DB ERROR:", db_error)
+    //     return null
+    // }
 
     return true;
 }
 
 
-export async function delete_user(id: Accounts_DB_Type["id"]) {
+export async function delete_user(id: user_type["id"]) {
     const user_data = await get_user_by_id(id);
     if (!user_data) {
         return false; // L'utilisateur n'existe pas ?!
     }
 
-    const deleted_user = Accounts.splice(id - 1, 1)
-    console.log("Element:", user_data)
-    console.log("Deleted:", deleted_user)
+    try {
+        const results: QueryResult<user_type> = await query(
+            `DELETE FROM ${table_user_name}
+            WHERE id='${id}';`); // Requête
+
+    } catch (db_error) {
+        // Log l'erreur
+        console.log("DB ERROR:", db_error)
+        return null
+    }
 
     return true;
 }

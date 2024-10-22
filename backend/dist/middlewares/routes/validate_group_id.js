@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.validate_group_id = void 0;
 const groups_func_1 = require("../../models/groups_func");
 const validate_group_id = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const group_id = parseInt(req.params.group_id);
+    const group_id = req.params.group_id;
     try {
         if (yield (0, groups_func_1.get_group_by_id)(group_id)) { // Si l'Id du groupe existe
             next();

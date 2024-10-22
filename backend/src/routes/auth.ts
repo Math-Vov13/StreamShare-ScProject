@@ -29,14 +29,14 @@ router.post('/', body_data_validation(group_login_schema), async (req: Request, 
         return;
     }
     
-
+    
     // Cookies
-    const refreshToken = "HelloGuys";
+    const refreshToken = "AccessToken!";
     const accessToken = await generate_groupToken(group_data.id);
     res.cookie("refresh", refreshToken, { maxAge: time_age_RefreshToken, httpOnly: true })
     res.cookie("token", accessToken, { maxAge: time_age_AccessToken, httpOnly: true })
     
-    res.status(201).json({ response: group_data.id});
+    res.sendStatus(201);
     return;
 });
 

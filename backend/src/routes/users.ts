@@ -3,12 +3,12 @@ import { Request, Response, Router } from "express";
 import { get_user, get_users_in_group, create_user, update_user, delete_user } from "../models/users_func";
 
 // Types + Validation Middleware
-import { user_login_schema, create_user_schema, update_user_schema } from "../models/Schemas/users_schema";
+import { user_login_schema, create_user_schema, update_user_schema, user_type } from "../models/Schemas/users_schema";
 import { body_data_validation, query_data_validation } from "../middlewares/routes/data_validation";
 import { validate_group_id } from "../middlewares/routes/validate_group_id";
 import { validate_group_token } from "../middlewares/routes/validate_token";
 import { group_login_schema } from "../models/Schemas/groups_schema";
-import { get_group } from "../models/groups_func";
+import { get_group, isGroup_Valide } from "../models/groups_func";
 
 // Router
 const router = Router()
@@ -20,7 +20,7 @@ router.get("/:group_id/users",
     validate_group_id,
 
     async (req: Request, res: Response) => {
-        const group_id = parseInt(req.params.group_id);
+        const group_id = req.params.group_id;
         const { Name } = req.query;
 
         if (req.group?.id !== group_id) {
@@ -29,11 +29,16 @@ router.get("/:group_id/users",
         }
 
         if (!Name) { // Si 'Name' est vide, envoyé la liste de tous les utilisateurs
-            res.json({response: await get_users_in_group(group_id)});
+            const users_list = await get_users_in_group(group_id)
+            if (! users_list) {
+                res.sendStatus(504);
+            } else {
+                res.json({response: await get_users_in_group(group_id)});
+            }
             return;
         }
 
-        const User_data = await get_user(group_id as number, Name as string);
+        const User_data = await get_user(group_id as user_type["id"], Name as user_type["name"]);
         if (!User_data) {
             res.status(404).json({detail: "User not found!"})
             return;
@@ -51,15 +56,15 @@ router.post("/:group_id/users",
     body_data_validation(create_user_schema),
 
     async (req: Request, res: Response) => {
-        const group_id = parseInt(req.params.group_id);
-        const { Name, ProfileImage, Type } = req.body;
+        const group_id = req.params.group_id;
+        const { Name, Thumbnail, Type } = req.body;
 
         if (req.group?.id !== group_id) {
             res.sendStatus(403); // Quelqu'un essaie de se connecter au groupe sans l'autorisation
             return;
         }
 
-        const created = await create_user(group_id as number, Name as string, ProfileImage as string, Type as string);
+        const created = await create_user(group_id as user_type["group_id"], Name as user_type["name"], Thumbnail as user_type["thumbnail"], Type as user_type["type"]);
         if (created) {
             res.status(201).send({detail: "User created!"});
             return;
@@ -78,7 +83,7 @@ router.put("/:group_id/users",
     body_data_validation(update_user_schema),
 
     async (req: Request, res: Response) => {
-        const group_id = parseInt(req.params.group_id);
+        const group_id = req.params.group_id;
         const { Name } = req.query;
         const Changes = req.body;
 
@@ -87,7 +92,7 @@ router.put("/:group_id/users",
             return;
         }
 
-        const user_data = await get_user(group_id, Name as string);
+        const user_data = await get_user(group_id, Name as user_type["name"]);
         if (! user_data) {
             res.status(404).json({detail: "User not found!"})
             return;
@@ -99,7 +104,7 @@ router.put("/:group_id/users",
         }
 
 
-        const updated = await update_user(user_data.id, Changes as any);
+        const updated = await update_user(user_data.id, Changes as Array<user_type["name"] | user_type["thumbnail"]>);
         if (updated) {
             res.status(200).send({detail: "User updated!"})
         } else {
@@ -116,7 +121,7 @@ router.delete("/:group_id/users",
     body_data_validation(group_login_schema),
     
     async (req: Request, res: Response) => {
-        const group_id = parseInt(req.params.group_id);
+        const group_id = req.params.group_id;
         const { Name } = req.query;
         const { Mail, Password } = req.body;
 
@@ -125,13 +130,12 @@ router.delete("/:group_id/users",
             return;
         }
 
-        const group_found = await get_group(Mail, Password);
-        if (group_found?.id !== req.group?.id) { // Mail ou Password du groupe non valide!
-            res.sendStatus(403); // Quelqu'un essaie de se connecter au groupe sans l'autorisation
+        if (! await isGroup_Valide(req.group, Mail, Password)) {
+            res.sendStatus(403); // Mail ou Mot de Passe invalide !
             return;
         }
 
-        const user_target = await get_user(group_id, Name as string);
+        const user_target = await get_user(group_id, Name as user_type["name"]);
         if (! user_target) {
             res.status(404).json({detail: "User not found!"})
             return;

@@ -3,7 +3,7 @@ import { get_group_by_id } from "../../models/groups_func"
 
 
 export const validate_group_id = async (req: Request, res: Response, next: NextFunction) => {
-    const group_id = parseInt(req.params.group_id);
+    const group_id = req.params.group_id;
 
     try {
         if (await get_group_by_id(group_id)) { // Si l'Id du groupe existe

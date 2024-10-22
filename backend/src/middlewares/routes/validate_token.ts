@@ -1,18 +1,20 @@
 import { Request, Response, NextFunction } from "express";
 import { get_group_by_id } from "../../models/groups_func";
+import { group_type } from "../../models/Schemas/groups_schema";
+import { user_type } from "../../models/Schemas/users_schema";
 import { get_user_by_id } from "../../models/users_func";
-import { decodeToken } from "../../utils/auth_func";
-
+import { decodeToken, Token_Type } from "../../utils/auth_func";
 
 interface JwtPayload {
-    id: number;
+    id: group_type["id"];
+    usrid: user_type["id"];
 }
 
 declare global {
     namespace Express {
         interface Request {
-            group?: { id: number };
-            user?: { id: number };
+            group?: group_type;
+            user?: user_type;
         }
     }
 }
@@ -36,19 +38,18 @@ export const validate_group_token = async (req: Request, res: Response, next: Ne
     }
 
     try {
-        const decoded = await decodeToken(token) as JwtPayload;
-        if (! await get_group_by_id(decoded.id)) { // TODO: vérifier la date d'expiration aussi
+        const decoded = await decodeToken(token, Token_Type.Group) as JwtPayload;
+        const active_group = await get_group_by_id(decoded.id);
+        if (! active_group) { // Token invalide ou expiré
             res.clearCookie("token");
             res.status(403).json({detail: "Your credentials is not valid or is expired!"});
             return; 
         }
-        
-        req.group = { id: decoded.id }; // Ajoute l'id dans le Headers
+
+        req.group = active_group; // Ajoute les data du groupe dans le Headers
         next();
 
     } catch (error) {
-        console.log("Handle Error")
-        console.log("Erreur:", error)
         res.clearCookie("token");
         res.status(403).json({detail: "Your credentials is not valid or is expired!"});
         return;
@@ -66,14 +67,15 @@ export const validate_user_token = async (req: Request, res: Response, next: Nex
 
 
     try {
-        const decoded = await decodeToken(token) as JwtPayload;
-        if (! await get_user_by_id(decoded.id)) { // TODO: vérifier la date d'expiration aussi
+        const decoded = await decodeToken(token, Token_Type.User) as JwtPayload;
+        const active_user = await get_user_by_id(decoded.usrid);
+        if (! active_user) { // Token invalide ou expiré
             res.clearCookie("tokenU");
             res.status(403).json({detail: "Your User credentials is not valid or is expired!"});
             return; 
         }
         
-        req.user = { id: decoded.id }; // Ajoute l'id dans le Headers
+        req.user = active_user; // Ajoute l'id dans le Headers
         next();
 
     } catch (error) {

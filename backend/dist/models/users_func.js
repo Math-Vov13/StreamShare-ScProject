@@ -15,46 +15,64 @@ exports.get_users_in_group = get_users_in_group;
 exports.create_user = create_user;
 exports.update_user = update_user;
 exports.delete_user = delete_user;
-const fake_db_1 = require("./fake-db");
-const date_fns_1 = require("date-fns");
-const max_users_by_group = 5;
+const users_schema_1 = require("./Schemas/users_schema");
+const db_connector_1 = require("../models/db-connector");
 function get_user(group_id, name) {
     return __awaiter(this, void 0, void 0, function* () {
-        return fake_db_1.Accounts.find(user => user["group-id"] === group_id && user["name"] === name);
+        try {
+            const results = yield (0, db_connector_1.query)(`SELECT * FROM ${users_schema_1.table_user_name}
+            WHERE group_id='${group_id}'
+            AND name='${name}'`); //Requête
+            return (results.rowCount && results.rowCount > 0) ? results.rows[0] : null;
+        }
+        catch (db_error) {
+            // Log l'erreur
+            console.log("DB ERROR:", db_error);
+            return null;
+        }
     });
 }
 function get_user_by_id(account_id) {
     return __awaiter(this, void 0, void 0, function* () {
-        return fake_db_1.Accounts.find(user => user.id === account_id);
+        try {
+            const results = yield (0, db_connector_1.query)(`SELECT * FROM ${users_schema_1.table_user_name}
+            WHERE id='${account_id}'`); //Requête
+            return (results.rowCount && results.rowCount > 0) ? results.rows[0] : null;
+        }
+        catch (db_error) {
+            // Log l'erreur
+            console.log("DB ERROR:", db_error);
+            return null;
+        }
     });
 }
 function get_users_in_group(group_id) {
     return __awaiter(this, void 0, void 0, function* () {
-        return fake_db_1.Accounts.filter(user => user["group-id"] === group_id);
+        try {
+            const results = yield (0, db_connector_1.query)(`SELECT * FROM ${users_schema_1.table_user_name}
+            WHERE group_id='${group_id}'`); //Requête
+            return results.rows;
+        }
+        catch (db_error) {
+            // Log l'erreur
+            console.log("DB ERROR:", db_error);
+            return null;
+        }
     });
 }
 function create_user(group_id, name, image, account_type) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (yield get_user(group_id, name)) {
-            return false; // L'utilisateur existe déjà dans le groupe !!
+        try {
+            const results = yield (0, db_connector_1.query)(`INSERT INTO ${users_schema_1.table_user_name}(name, thumbnail, group_id, type)
+            VALUES('${name}', '${image}', '${group_id}', '${account_type}')
+            RETURNING id;`); // Requête
+            return results;
         }
-        const group = yield get_users_in_group(group_id);
-        const group_length = group === null || group === void 0 ? void 0 : group.length;
-        if (group_length == max_users_by_group) { // Le nombre maximum d'utilisateur dans ce groupe est atteint !
-            return false;
+        catch (db_error) {
+            // Log l'erreur
+            console.log("DB ERROR:", db_error);
+            return null;
         }
-        const currentDate = new Date();
-        fake_db_1.Accounts.push({
-            "id": fake_db_1.Accounts.length + 1,
-            "admin": group_length == 0,
-            "name": name,
-            "image": image,
-            "type": account_type,
-            "created-date": (0, date_fns_1.format)(currentDate, 'yyyy-MM-dd'),
-            "preferences": [],
-            "group-id": group_id
-        });
-        return true;
     });
 }
 function update_user(id, changes) {
@@ -63,12 +81,20 @@ function update_user(id, changes) {
         if (!user_data) {
             return false; // L'utilisateur n'existe pas ?!
         }
-        if (changes["id"] || changes["admin"] || changes["created-date"] || changes["type"] || changes["group-id"]) {
-            return false; // Une requête malveillante veut modifier les infos d'id et/ou admin ?!
-        }
-        user_data.name = changes.Name || user_data.name;
-        user_data.image = changes.Image || user_data.image;
-        user_data.preferences = changes.Preferences || user_data.preferences;
+        return true;
+        // const setClause = Object.keys(changes)
+        //     .map(key => `${key} = $1`)
+        //     .join(', ');
+        // try {
+        //     const results: QueryResult<user_type> = await query(
+        //         `UPDATE ${table_user_name}
+        //         SET ${setClause}
+        //         WHERE id=${id}`); // Requête
+        // } catch (db_error) {
+        //     // Log l'erreur
+        //     console.log("DB ERROR:", db_error)
+        //     return null
+        // }
         return true;
     });
 }
@@ -78,9 +104,15 @@ function delete_user(id) {
         if (!user_data) {
             return false; // L'utilisateur n'existe pas ?!
         }
-        const deleted_user = fake_db_1.Accounts.splice(id - 1, 1);
-        console.log("Element:", user_data);
-        console.log("Deleted:", deleted_user);
+        try {
+            const results = yield (0, db_connector_1.query)(`DELETE FROM ${users_schema_1.table_user_name}
+            WHERE id='${id}';`); // Requête
+        }
+        catch (db_error) {
+            // Log l'erreur
+            console.log("DB ERROR:", db_error);
+            return null;
+        }
         return true;
     });
 }

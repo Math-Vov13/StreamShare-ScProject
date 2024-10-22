@@ -31,11 +31,11 @@ router.post('/', (0, data_validation_1.body_data_validation)(groups_schema_1.gro
         return;
     }
     // Cookies
-    const refreshToken = "HelloGuys";
+    const refreshToken = "AccessToken!";
     const accessToken = yield (0, auth_func_1.generate_groupToken)(group_data.id);
     res.cookie("refresh", refreshToken, { maxAge: time_age_RefreshToken, httpOnly: true });
     res.cookie("token", accessToken, { maxAge: time_age_AccessToken, httpOnly: true });
-    res.status(201).json({ response: group_data.id });
+    res.sendStatus(201);
     return;
 }));
 router.delete('/', (_, res) => __awaiter(void 0, void 0, void 0, function* () {
