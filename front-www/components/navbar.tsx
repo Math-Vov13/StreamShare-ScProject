@@ -5,6 +5,8 @@ import { BsChevronDown, BsSearch, BsBell  } from "react-icons/bs";
 import  MobileMenu  from "@/components/mobile-menu";
 import { useEffect, useCallback, useState } from "react";
 import  AccountMenu  from "@/components/account-menu";
+import { useUser } from "@/context/UserContext";
+
 
 const TOP_OFFSET = 66;
 
@@ -12,6 +14,7 @@ const Navbar = () => {
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const [showAccountMenu, setShowAccountMenu] = useState(false);
     const [showBackground, setShowBackground] = useState(false)
+    const { user } = useUser();
 
     const toogleMobileMenu = useCallback(() => {
         setShowMobileMenu((current) => !current);
@@ -49,7 +52,7 @@ const Navbar = () => {
                 ${showBackground ? 'bg-zinc-900 bg-opacity-90' : ''}
             "
             >
-                <img src="/logo.png" alt="logo" className="h-[100px] lg:h-[150px]" />
+                <img src="/logo-streamshare-form.png" alt="logo" className="h-[85px] lg:h-[125px]" />
                 <div
                     className="
                     flex-row
@@ -83,7 +86,7 @@ const Navbar = () => {
                             <img src="/goku-pp.jpg" alt="account profile picture" />
                         </div>
                         <BsChevronDown className={`text-violet-200 transition ${showAccountMenu ? "rotate-180" : "rotate-0"}`}/>
-                        <AccountMenu visible={showAccountMenu}/>
+                        <AccountMenu visible={showAccountMenu} label={user?.name}/>
                     </div>
                 </div>
             </div>

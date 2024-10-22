@@ -5,7 +5,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
-import axios from "axios";
+import axios from "@/utils/axiosConfig";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ type LoginFormValues = z.infer<typeof LoginSchema>;
 interface LoginResponse {
   error?: string;
   success?: string;
-  user?: {
+  account?: {
     name: string;
     email: string;
   };
@@ -58,7 +58,7 @@ export const LoginForm: React.FC = () => {
 
     try {
       // Utilisation d'Axios pour envoyer une requête POST
-      const response = await axios.post<LoginResponse>("http://localhost:5000/auth/login", values);
+      const response = await axios.post<LoginResponse>("http://localhost:5000/login", values);
 
       // Gestion des réponses
       if (response.status === 200) {

@@ -8,17 +8,19 @@ import userRoute from './routes/users';
 import groupRoute from "./routes/groups";
 import authUsrRoute from "./routes/auth_users";
 import contentRoute from "./routes/content";
+import cors from "cors";
 
 dotenv.config();
 
 const app: Express = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 
 
 // Middlewares
 app.use(express.json()); // Middleware pour parser le body JSON
 app.use(cookieParser()) // Middleware pour parser les Cookies
+app.use(cors());
 app.use(logRequest)
 
 
@@ -65,11 +67,9 @@ app.get("/debug", (req: Request, res: Response) => {
   })
 })
 
-
-// CORS used to set same port as front-end
-import cors from 'cors';
 app.use(cors({ 
-  origin: 'http://localhost:3000'
+  origin: 'http://localhost:3000',
+  credentials: true,
 }));
 
 // Listen Port (Start Server)

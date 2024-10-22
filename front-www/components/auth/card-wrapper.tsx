@@ -2,7 +2,7 @@
 
 import 
 { 
-    Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle 
+    Card, CardContent, CardFooter, CardHeader,
 } 
     from "../ui/card";
 import { Header } from "@/components/auth/header";

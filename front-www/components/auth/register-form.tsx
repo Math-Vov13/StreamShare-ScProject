@@ -5,7 +5,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
-import axios from "axios";
+import axios from "@/utils/axiosConfig";
+import Cookie from "js-cookie";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,16 +23,16 @@ import {
 import { FormSuccess } from "@/components/auth/form-success";
 import { FormError } from "@/components/auth/form-error";
 import { RegisterSchema } from "@/schemas";
+import SubscriptionDialog from "@/components/subscriptions/subscription-dialog";
 
 // Define the type for the form values based on Zod schema
 type RegisterFormValues = z.infer<typeof RegisterSchema>;
 
-// Define the type for the response from the login API
 interface RegisterResponse {
   error?: string;
   success?: string;
-  token?: string;  // Add token field
-  user?: {
+  token?: string;
+  account?: {
     name: string;
     email: string;
   };
@@ -41,6 +42,7 @@ export const RegisterForm: React.FC = () => {
   const [error, setError] = useState<string | undefined>(undefined);
   const [success, setSuccess] = useState<string | undefined>(undefined);
   const [isPending, setIsPending] = useState<boolean>(false);
+  const [selectedSubscription, setSelectedSubscription] = useState<string | null>(null); // Track selected subscription
   const router = useRouter();
 
   const form = useForm<RegisterFormValues>({
@@ -49,6 +51,7 @@ export const RegisterForm: React.FC = () => {
       name: "",
       email: "",
       password: "",
+      subscription: "",
     },
   });
 
@@ -62,30 +65,30 @@ export const RegisterForm: React.FC = () => {
       const response = await axios.post<RegisterResponse>("http://localhost:5000/auth/register", values);
 
       if (response.status === 201) {
-        // Store the token in localStorage
         const token = response.data.token;
         if (token) {
-          localStorage.setItem('token', token);
+          Cookie.set("token", token, { expires: 7 });
         }
 
-        // Optionally, display a success message
         setSuccess("Inscription réussie!");
-
-        // Redirect to the subscriptions page
-        router.push("/subscriptions");
+        router.push("/login");
       } else {
         setError(response.data.error || "Une erreur s'est produite.");
       }
     } catch (error) {
-      // Handle request errors
       if (axios.isAxiosError(error) && error.response) {
         setError(error.response.data.error || "Erreur de connexion.");
       } else {
         setError("Une erreur imprévue est survenue.");
       }
     } finally {
-      setIsPending(false);  // Reset to false when the request finishes
+      setIsPending(false);
     }
+  };
+
+  const handleSubscriptionSelection = (selectedPlan: string) => {
+    setSelectedSubscription(selectedPlan); // Set the selected plan in the form
+    form.setValue("subscription", selectedPlan);
   };
 
   return (
@@ -156,6 +159,15 @@ export const RegisterForm: React.FC = () => {
               )}
             />
           </div>
+
+          {/* Pass handleSubscriptionSelection to SubscriptionDialog */}
+          <SubscriptionDialog handleSelectPlan={handleSubscriptionSelection} />
+
+          {/* Display selected subscription plan */}
+          {selectedSubscription && (
+            <p className="text-white mt-2">Abonnement sélectionné: {selectedSubscription}</p>
+          )}
+
           <FormError message={error} />
           <FormSuccess message={success} />
           <Button
