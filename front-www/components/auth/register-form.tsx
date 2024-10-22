@@ -71,7 +71,9 @@ export const RegisterForm: React.FC = () => {
         }
 
         setSuccess("Inscription réussie!");
-        router.push("/login");
+        //Optionnel : Rediriger vers une autre page après connexion
+        router.push("/profiles");
+        // router.push("/login");
       } else {
         setError(response.data.error || "Une erreur s'est produite.");
       }

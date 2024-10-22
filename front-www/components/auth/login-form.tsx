@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
 import axios from "@/utils/axiosConfig";
+import Cookie from "js-cookie";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ type LoginFormValues = z.infer<typeof LoginSchema>;
 interface LoginResponse {
   error?: string;
   success?: string;
+  token?: string;
   account?: {
     name: string;
     email: string;
@@ -58,10 +60,15 @@ export const LoginForm: React.FC = () => {
 
     try {
       // Utilisation d'Axios pour envoyer une requête POST
-      const response = await axios.post<LoginResponse>("http://localhost:5000/login", values);
+      const response = await axios.post<LoginResponse>("http://localhost:5000/api/v1/groups/auth", values, {withCredentials: false});
 
       // Gestion des réponses
-      if (response.status === 200) {
+      if (response.status === 201) {
+        const token = response.data.token;
+        if (token) {
+          Cookie.set("token", token, { expires: 7 });
+        }
+
         setSuccess(response.data.success || "Connexion réussie !");
         //Optionnel : Rediriger vers une autre page après connexion
         router.push("/profiles");
