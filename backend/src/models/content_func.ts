@@ -1,4 +1,3 @@
-import { Contents, Content_DB_Type} from "./fake-db";
 import { content_type, content_table_name } from "./Schemas/content_schema";
 import { query } from "./db-connector";
 import { QueryResult } from "pg";
@@ -39,17 +38,32 @@ export async function search_trends() {
 }
 
 export async function search_content(fulfil_name: string = "", genres: content_type["categories"] = [], tags: content_type["tags"] = []) {
-    let results : Array<Content_DB_Type> = Array(); // Liste contenant les contenus proposés par la BDD
+    let results : Array<content_type> = Array(); // Liste contenant les contenus proposés par la BDD
     console.log(fulfil_name)
     console.log(genres)
     console.log(tags)
 
+    try {
+        const results: QueryResult<content_type> = await query(
+            `SELECT * FROM ${content_table_name}
+            WHERE name LIKE '${fulfil_name}' 
+            AND categories @> ${genres}
+            AND tags @> ${tags};`); //Requête
+
+        return (results.rowCount && results.rowCount > 0)? results.rows : null;
+        
+    } catch (db_error) {
+        // Log l'erreur
+        console.log("DB ERROR:", db_error)
+        return null
+    }
+
     // Meilleures Correspondances !
-    results.push(...Contents.filter(raw => 
-        raw.name.startsWith(fulfil_name) && 
-        genres.every(element => raw.genres.includes(element)) && 
-        tags.every(element => raw.tags.includes(element))
-    ));
+    // results.push(...Contents.filter(raw => 
+    //     raw.name.startsWith(fulfil_name) && 
+    //     genres.every(element => raw.genres.includes(element)) && 
+    //     tags.every(element => raw.tags.includes(element))
+    // ));
     // console.log(results.length)
 
     // // Classiques

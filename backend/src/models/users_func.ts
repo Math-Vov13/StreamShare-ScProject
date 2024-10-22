@@ -1,4 +1,5 @@
 import { update_user_schema, user_type, table_user_name } from "./Schemas/users_schema";
+import { content_type } from "./Schemas/content_schema";
 import { query } from "../models/db-connector";
 import { format } from 'date-fns';
 import { QueryResult } from "pg";
@@ -58,6 +59,23 @@ export async function create_user(group_id: user_type["group_id"], name: user_ty
             `INSERT INTO ${table_user_name}(name, thumbnail, group_id, type)
             VALUES('${name}', '${image}', '${group_id}', '${account_type}')
             RETURNING id;`); // Requête
+
+        return results;
+        
+    } catch (db_error) {
+        // Log l'erreur
+        console.log("DB ERROR:", db_error)
+        return null
+    }
+}
+
+
+export async function user_watched_content(id: user_type["id"], content_id: content_type["id"]){
+    try {
+        const results: QueryResult<user_type> = await query(
+            `UPDATE ${table_user_name}
+            SET interests = array_append(COALESCE(interests, '{}'), '${content_id}')
+            WHERE id='${id}';`); // Requête
 
         return results;
         

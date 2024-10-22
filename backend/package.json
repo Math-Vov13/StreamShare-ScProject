@@ -13,6 +13,7 @@
   "license": "ISC",
   "description": "API used for school Project:\r ## [StreamShare](https://github.com/MARQUESDINISJoaoGabriel/Server-Web-Efrei-Projet)\r A streaming application based on React js and Express js with typescript.",
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
     "@types/cors": "^2.8.17",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
