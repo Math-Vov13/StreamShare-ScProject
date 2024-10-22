@@ -92,6 +92,19 @@ export async function update_user(id: user_type["id"], changes: Array<string>) {
     if (!user_data) {
         return false; // L'utilisateur n'existe pas ?!
     }
+
+    try {
+        const results: QueryResult<user_type> = await query(
+            `UPDATE ${table_user_name}
+            SET updated_at=NOW()
+            WHERE id='${id}'`); // Requête
+
+    } catch (db_error) {
+        // Log l'erreur
+        console.log("DB ERROR:", db_error)
+        return null
+    }
+
     return true;
 
     // const setClause = Object.keys(changes)
@@ -116,7 +129,7 @@ export async function update_user(id: user_type["id"], changes: Array<string>) {
 
 export async function delete_user(id: user_type["id"]) {
     const user_data = await get_user_by_id(id);
-    if (!user_data) {
+    if (! user_data) {
         return false; // L'utilisateur n'existe pas ?!
     }
 

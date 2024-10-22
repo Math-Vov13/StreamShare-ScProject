@@ -35,7 +35,7 @@ var movie_genre;
 exports.categories_schema = yup.mixed().oneOf(["Science Fiction", "Action", "Crime", "Drama", "Thriller", "Romance", "Adventure", "Animation", "Superhero", "Fantasy", "Horror", "Musical", "Family"]);
 exports.tags_schema = yup.string().nullable();
 exports.get_content_schema = yup.object({
-    FulfilName: yup.string(),
-    Categories: yup.array(exports.categories_schema),
-    Tags: yup.array(exports.tags_schema)
+    fulfilname: yup.string(),
+    categories: yup.array(exports.categories_schema),
+    tags: yup.array(exports.tags_schema)
 }).noUnknown();

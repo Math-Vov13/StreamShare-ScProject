@@ -13,6 +13,7 @@ const express_1 = require("express");
 const groups_func_1 = require("../models/groups_func");
 const validate_token_1 = require("../middlewares/routes/validate_token");
 const data_validation_1 = require("../middlewares/routes/data_validation");
+const auth_1 = require("../routes/auth");
 const groups_schema_1 = require("../models/Schemas/groups_schema");
 const router = (0, express_1.Router)();
 router.get("/", validate_token_1.validate_group_token, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -23,14 +24,11 @@ router.get("/", validate_token_1.validate_group_token, (req, res) => __awaiter(v
     return;
 }));
 router.post("/", (0, data_validation_1.body_data_validation)(groups_schema_1.create_group_schema), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { Name, Mail, Password, Subscription } = req.body;
-    const created = yield (0, groups_func_1.create_group)(Name, Password, Mail, Subscription);
+    const { name, email, password, subscription } = req.body;
+    const created = yield (0, groups_func_1.create_group)(name, password, email, subscription);
     if (created) {
-        // Supprime les cookies
-        res.clearCookie("refresh");
-        res.clearCookie("token");
-        res.clearCookie("tokenU");
-        res.status(201).json({ detail: "Group created!" });
+        (0, auth_1.create_token)(req, res); // Créer le token
+        // res.status(201).json({detail: "Group created!"})
         return;
     }
     else {

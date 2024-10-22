@@ -24,6 +24,18 @@ app.use(cors());
 app.use(logRequest)
 
 
+// Headers
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.header(
+    'Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization,  X-PINGOTHER'
+  );
+  res.header('Access-Control-Allow-Credentials', "true");
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS');
+  next();
+});
+
+
 // Routes
 app.use("/api/v1/groups/auth", authRoute);
 app.use("/api/v1/groups", authUsrRoute);
@@ -67,10 +79,18 @@ app.get("/debug", (req: Request, res: Response) => {
   })
 })
 
-app.use(cors({ 
-  origin: 'http://localhost:3000',
+const corsConfig = {
+  origin: true,
   credentials: true,
-}));
+};
+
+app.use(cors(corsConfig));
+app.options('*', cors(corsConfig));
+
+// app.use(cors({ 
+//   origin: 'http://localhost:3000'
+//   // credentials: true,
+// }));
 
 // Listen Port (Start Server)
 app.listen(port, () => {

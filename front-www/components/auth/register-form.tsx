@@ -62,7 +62,7 @@ export const RegisterForm: React.FC = () => {
 
     try {
       // Send request to the API
-      const response = await axios.post<RegisterResponse>("http://localhost:5000/auth/register", values);
+      const response = await axios.post<RegisterResponse>("http://localhost:5000/api/v1/groups", values, {withCredentials: false});
 
       if (response.status === 201) {
         const token = response.data.token;

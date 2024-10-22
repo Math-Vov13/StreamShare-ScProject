@@ -13,6 +13,7 @@ exports.get_user = get_user;
 exports.get_user_by_id = get_user_by_id;
 exports.get_users_in_group = get_users_in_group;
 exports.create_user = create_user;
+exports.user_watched_content = user_watched_content;
 exports.update_user = update_user;
 exports.delete_user = delete_user;
 const users_schema_1 = require("./Schemas/users_schema");
@@ -75,11 +76,36 @@ function create_user(group_id, name, image, account_type) {
         }
     });
 }
+function user_watched_content(id, content_id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const results = yield (0, db_connector_1.query)(`UPDATE ${users_schema_1.table_user_name}
+            SET interests = array_append(COALESCE(interests, '{}'), '${content_id}')
+            WHERE id='${id}';`); // Requête
+            return results;
+        }
+        catch (db_error) {
+            // Log l'erreur
+            console.log("DB ERROR:", db_error);
+            return null;
+        }
+    });
+}
 function update_user(id, changes) {
     return __awaiter(this, void 0, void 0, function* () {
         let user_data = yield get_user_by_id(id);
         if (!user_data) {
             return false; // L'utilisateur n'existe pas ?!
+        }
+        try {
+            const results = yield (0, db_connector_1.query)(`UPDATE ${users_schema_1.table_user_name}
+            SET updated_at=NOW()
+            WHERE id='${id}'`); // Requête
+        }
+        catch (db_error) {
+            // Log l'erreur
+            console.log("DB ERROR:", db_error);
+            return null;
         }
         return true;
         // const setClause = Object.keys(changes)

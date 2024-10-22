@@ -32,7 +32,7 @@ export const categories_schema = yup.mixed().oneOf(["Science Fiction", "Action",
 export const tags_schema = yup.string().nullable();
 
 export const get_content_schema = yup.object({
-    FulfilName: yup.string(),
-    Categories: yup.array(categories_schema),
-    Tags: yup.array(tags_schema)
+    fulfilname: yup.string(),
+    categories: yup.array(categories_schema),
+    tags: yup.array(tags_schema)
 }).noUnknown();

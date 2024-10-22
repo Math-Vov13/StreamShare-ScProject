@@ -2,6 +2,7 @@ import { Request, Response, Router } from "express";
 import { create_group, update_group } from "../models/groups_func";
 import { validate_group_token } from "../middlewares/routes/validate_token";
 import { body_data_validation } from "../middlewares/routes/data_validation";
+import { create_token } from "../routes/auth";
 import { create_group_schema, update_group_schema, group_login_schema, group_type } from "../models/Schemas/groups_schema";
 
 const router = Router()
@@ -26,16 +27,13 @@ router.post("/",
     body_data_validation(create_group_schema),
 
     async (req: Request, res: Response) => {
-        const { Name, Mail, Password, Subscription } = req.body;
+        const { name, email, password, subscription } = req.body;
 
-        const created = await create_group(Name as group_type["name"], Password as group_type["password"], Mail as group_type["email"], Subscription as group_type["subscription"]);
+        const created = await create_group(name as group_type["name"], password as group_type["password"], email as group_type["email"], subscription as group_type["subscription"]);
         if (created) {
-            // Supprime les cookies
-            res.clearCookie("refresh");
-            res.clearCookie("token");
-            res.clearCookie("tokenU");
 
-            res.status(201).json({detail: "Group created!"})
+            create_token(req, res); // Créer le token
+            // res.status(201).json({detail: "Group created!"})
             return;
         } else {
             res.status(409).json({detail: "Your request can't be handled!"})

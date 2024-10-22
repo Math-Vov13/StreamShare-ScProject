@@ -86,6 +86,7 @@ export async function update_group(id: group_type["id"], changes: Array<group_ty
     if (!group_data) {
         return false; // L'utilisateur n'existe pas ?!
     }
+
     return true;
 
     // try {

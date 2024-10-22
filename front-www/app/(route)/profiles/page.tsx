@@ -1,18 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useUser } from "@/context/UserContext"; // Assuming you have UserContext set up
+// import { useUser } from "@/context/UserContext"; // Assuming you have UserContext set up
 import Image from "next/image";
 
 // Profile page component
 const Profiles = () => {
-  const { user } = useUser(); // Get the user data from UserContext
+  // const { user } = useUser(); // Get the user data from UserContext
   const router = useRouter();
 
   // If user data is not yet available, show a loading state
-  if (!user) {
-    return <p className="text-white text-center">Loading...</p>;
-  }
+  // if (!user) {
+  //   return <p className="text-white text-center">Loading...</p>;
+  // }
 
   return (
     <div className="flex items-center h-full justify-center bg-gradient-to-b from-black to-purple-500">
@@ -28,7 +28,7 @@ const Profiles = () => {
 
         {/* Welcome message */}
         <h2 className="text-3xl md:text-6xl text-white text-center mb-6">
-          Welcome back, {user.name} {/* Display the user's name */}
+          Welcome back, {"Salut"} {/* Display the user's name */}
         </h2>
 
         {/* Profile section */}
@@ -58,7 +58,7 @@ const Profiles = () => {
               {/* Username section */}
               <div className="flex flex-row items-center justify-center border-2 rounded-md bg-gradient-to-r from-purple-200 to-purple-400 mt-4">
                 <div className="text-2xl text-center text-purple-800">
-                  {user.name} {/* Show the user's name */}
+                  {"Hello"} {/* Show the user's name */}
                 </div>
               </div>
             </div>

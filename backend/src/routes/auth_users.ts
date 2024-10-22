@@ -21,7 +21,7 @@ router.post("/:group_id/users/auth",
     
     async (req: Request, res: Response) => {
         const time_age_UserToken = 1 *24 *60 *60 *1000; // ==> 1 jour
-        const { Name } = req.query;
+        const { name } = req.query;
         const group_id = req.params.group_id;
 
         // Security
@@ -30,7 +30,7 @@ router.post("/:group_id/users/auth",
             return;
         }
 
-        const user_data = await get_user(group_id as user_type["group_id"], Name as user_type["name"]);
+        const user_data = await get_user(group_id as user_type["group_id"], name as user_type["name"]);
         if (! user_data) {
             res.sendStatus(404);
             return;
@@ -40,7 +40,7 @@ router.post("/:group_id/users/auth",
         const accessToken = await generate_userToken(group_id as user_type["group_id"], user_data.id);
         res.cookie("tokenU", accessToken, { maxAge: time_age_UserToken, httpOnly: true })
         
-        res.sendStatus(201);
+        res.status(201).json({token: accessToken});
         return;
     }
 )

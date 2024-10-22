@@ -2,19 +2,19 @@
 
 
 
-import { useUser } from "@/context/UserContext";
+// import { useUser } from "@/context/UserContext";
 import Navbar from "@/components/navbar";
 import Billboard from "@/components/billboard";
 import MovieList from "@/components/movie-list";
 
 
 export default function Home() {
-  const { user } = useUser(); // Get the user data from UserContext
+  // const { user } = useUser(); // Get the user data from UserContext
   
-  if (!user) {
-    return <p className="text-white text-center">Loading...</p>;
+  // if (!user) {
+  //   return <p className="text-white text-center">Loading...</p>;
     
-  }
+  // }
 
 
   return (

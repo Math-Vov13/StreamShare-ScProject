@@ -13,13 +13,23 @@ const users_1 = __importDefault(require("./routes/users"));
 const groups_1 = __importDefault(require("./routes/groups"));
 const auth_users_1 = __importDefault(require("./routes/auth_users"));
 const content_1 = __importDefault(require("./routes/content"));
+const cors_1 = __importDefault(require("cors"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 // Middlewares
 app.use(express_1.default.json()); // Middleware pour parser le body JSON
 app.use((0, cookie_parser_1.default)()); // Middleware pour parser les Cookies
+app.use((0, cors_1.default)());
 app.use(log_1.default);
+// Headers
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization,  X-PINGOTHER');
+    res.header('Access-Control-Allow-Credentials', "true");
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS');
+    next();
+});
 // Routes
 app.use("/api/v1/groups/auth", auth_1.default);
 app.use("/api/v1/groups", auth_users_1.default);
@@ -57,11 +67,16 @@ app.get("/debug", (req, res) => {
         }
     });
 });
-// CORS used to set same port as front-end
-const cors_1 = __importDefault(require("cors"));
-app.use((0, cors_1.default)({
-    origin: 'http://localhost:3000'
-}));
+const corsConfig = {
+    origin: true,
+    credentials: true,
+};
+app.use((0, cors_1.default)(corsConfig));
+app.options('*', (0, cors_1.default)(corsConfig));
+// app.use(cors({ 
+//   origin: 'http://localhost:3000'
+//   // credentials: true,
+// }));
 // Listen Port (Start Server)
 app.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
