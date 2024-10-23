@@ -30,9 +30,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Fetch user data with the token included in cookies
-    axios.get('/api/user')
+    axios.get('/api/v1/groups/users')
       .then(response => {
-        setUser(response.data); // Assuming response contains the user data
+        setUser(response.data.response); // Assuming response contains the user data
       })
       .catch(error => {
         console.error('Error fetching user data:', error);

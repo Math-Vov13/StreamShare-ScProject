@@ -53,9 +53,9 @@ function search_content() {
         console.log(tags);
         try {
             const results = yield (0, db_connector_1.query)(`SELECT * FROM ${content_schema_1.content_table_name}
-            WHERE name LIKE '${fulfil_name}' 
-            AND categories @> ${genres}
-            AND tags @> ${tags};`); //Requête
+            WHERE title LIKE '${fulfil_name}%'
+            AND (${Object.keys(genres).length > 1 ? 'categories @> ARRAY[' + genres.map(g => `'${g}'`).join(', ') + ']' : 'TRUE'})
+            AND (${Object.keys(tags).length > 1 ? 'tags @> ARRAY[' + tags.map(t => `'${t}'`).join(', ') + ']' : 'TRUE'});`); //Requête
             return (results.rowCount && results.rowCount > 0) ? results.rows : null;
         }
         catch (db_error) {

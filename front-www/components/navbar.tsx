@@ -5,7 +5,7 @@ import { BsChevronDown, BsSearch, BsBell  } from "react-icons/bs";
 import  MobileMenu  from "@/components/mobile-menu";
 import { useEffect, useCallback, useState } from "react";
 import  AccountMenu  from "@/components/account-menu";
-// import { useUser } from "@/context/UserContext";
+import { useUser } from "@/context/UserContext";
 
 
 const TOP_OFFSET = 66;
@@ -86,7 +86,7 @@ const Navbar = () => {
                             <img src="/goku-pp.jpg" alt="account profile picture" />
                         </div>
                         <BsChevronDown className={`text-violet-200 transition ${showAccountMenu ? "rotate-180" : "rotate-0"}`}/>
-                        <AccountMenu visible={showAccountMenu} label={"hello"}/>
+                        <AccountMenu visible={showAccountMenu} label={"changeme"}/>
                     </div>
                 </div>
             </div>

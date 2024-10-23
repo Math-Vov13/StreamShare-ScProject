@@ -18,12 +18,31 @@ const data_validation_1 = require("../middlewares/routes/data_validation");
 const validate_token_1 = require("../middlewares/routes/validate_token");
 const groups_schema_1 = require("../models/Schemas/groups_schema");
 const groups_func_1 = require("../models/groups_func");
+const auth_func_1 = require("../utils/auth_func");
 // Router
 const router = (0, express_1.Router)();
 router.get("/users", validate_token_1.validate_group_token, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const { name } = req.query;
+    // Retourne tous les utilisateurs
     if (!name) { // Si 'Name' est vide, envoyé la liste de tous les utilisateurs
+        console.log("Cookies:", req.cookies);
+        const user_token = req.cookies["tokenU"];
+        console.log("Cookie:", user_token);
+        if (user_token) {
+            const decoded_token = yield (0, auth_func_1.decodeToken)(user_token, auth_func_1.Token_Type.User);
+            console.log("Decoded:", decoded_token);
+            const User_data = yield (0, users_func_1.get_user_by_id)(decoded_token.usrid);
+            console.log("User:", User_data);
+            if (!User_data) {
+                res.status(404).json({ detail: "User not found!" });
+                return;
+            }
+            else {
+                res.json({ response: User_data });
+                return;
+            }
+        }
         const users_list = yield (0, users_func_1.get_users_in_group)((_a = req.group) === null || _a === void 0 ? void 0 : _a.id);
         if (!users_list) {
             res.sendStatus(504);
@@ -42,6 +61,7 @@ router.get("/users", validate_token_1.validate_group_token, (req, res) => __awai
         }
         return;
     }
+    // Retourne les data d'un utilisateur
     const User_data = yield (0, users_func_1.get_user)((_b = req.group) === null || _b === void 0 ? void 0 : _b.id, name);
     if (!User_data) {
         res.status(404).json({ detail: "User not found!" });

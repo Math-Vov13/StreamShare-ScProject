@@ -47,7 +47,10 @@ const CreateUserProfile = () => {
       thumbnail,
     };
 
+    console.log("Hello, World!")
+
     try {
+      console.log("Send request :D")
       const response = await axios.post("/api/v1/groups/users", newProfile, {
         withCredentials: false,
       });

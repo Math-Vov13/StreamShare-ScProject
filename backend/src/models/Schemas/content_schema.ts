@@ -26,6 +26,24 @@ export type content_type = {
     type_content: "video/mp4"
 }
 
+export type secured_content_type = {
+    id: string,
+    title: string,
+    thumbnail: string,
+    note: number
+}
+
+export type semi_secured_content_type = {
+    id: string,
+    title: string,
+    all_audiances: boolean,
+    note: number,
+    release_date: string,
+    categories: Array<string>,
+    tags: Array<string>,
+    genre: movie_genre,
+}
+
 
 
 export const categories_schema = yup.mixed().oneOf(["Science Fiction", "Action", "Crime", "Drama", "Thriller", "Romance", "Adventure", "Animation", "Superhero", "Fantasy", "Horror", "Musical", "Family"]);

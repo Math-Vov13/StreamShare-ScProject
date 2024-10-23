@@ -39,16 +39,13 @@ export async function search_trends() {
 
 export async function search_content(fulfil_name: string = "", genres: content_type["categories"] = [], tags: content_type["tags"] = []) {
     let results : Array<content_type> = Array(); // Liste contenant les contenus proposés par la BDD
-    console.log(fulfil_name)
-    console.log(genres)
-    console.log(tags)
 
     try {
         const results: QueryResult<content_type> = await query(
             `SELECT * FROM ${content_table_name}
-            WHERE name LIKE '${fulfil_name}' 
-            AND categories @> ${genres}
-            AND tags @> ${tags};`); //Requête
+            WHERE title LIKE '${fulfil_name}%'
+            AND (${Object.keys(genres).length > 1 ? 'categories @> ARRAY[' + genres.map(g => `'${g}'`).join(', ') + ']' : 'TRUE'})
+            AND (${Object.keys(tags).length > 1 ? 'tags @> ARRAY[' + tags.map(t => `'${t}'`).join(', ') + ']' : 'TRUE'});`); //Requête
 
         return (results.rowCount && results.rowCount > 0)? results.rows : null;
         

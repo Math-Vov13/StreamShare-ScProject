@@ -1,6 +1,6 @@
 // Imports
 import { Request, Response, Router } from "express";
-import { get_user, get_users_in_group, create_user, update_user, delete_user } from "../models/users_func";
+import { get_user, get_users_in_group, create_user, update_user, delete_user, get_user_by_id } from "../models/users_func";
 import { create_user_token } from "../routes/auth_users";
 
 // Types + Validation Middleware
@@ -9,10 +9,17 @@ import { body_data_validation, query_data_validation } from "../middlewares/rout
 import { validate_group_token } from "../middlewares/routes/validate_token";
 import { group_login_schema, group_type } from "../models/Schemas/groups_schema";
 import { get_group, isGroup_Valide } from "../models/groups_func";
+import { decodeToken, Token_Type } from "../utils/auth_func";
 
 // Router
 const router = Router()
 
+
+
+interface JwtPayload {
+    id: group_type["id"];
+    usrid: user_type["id"];
+}
 
 
 router.get("/users",
@@ -21,7 +28,26 @@ router.get("/users",
     async (req: Request, res: Response) => {
         const { name } = req.query;
 
+        // Retourne tous les utilisateurs
         if (!name) { // Si 'Name' est vide, envoyé la liste de tous les utilisateurs
+            console.log("Cookies:", req.cookies)
+            const user_token: string | null = req.cookies["tokenU"]
+            console.log("Cookie:", user_token)
+            if (user_token) {
+                const decoded_token = await decodeToken(user_token as string, Token_Type.User) as JwtPayload
+                console.log("Decoded:", decoded_token)
+                const User_data = await get_user_by_id(decoded_token.usrid as user_type["id"])
+                console.log("User:", User_data)
+
+                if (!User_data) {
+                    res.status(404).json({detail: "User not found!"})
+                    return;
+                } else {
+                    res.json({response: User_data});
+                    return;
+                }
+            }
+
             const users_list = await get_users_in_group(req.group?.id as group_type["id"])
             if (! users_list) {
                 res.sendStatus(504);
@@ -43,7 +69,8 @@ router.get("/users",
             return;
         }
 
-        const User_data = await get_user(req.group?.id as group_type["id"], name as user_type["name"]);
+        // Retourne les data d'un utilisateur
+        const User_data = await get_user(req.group?.id as group_type["id"], name as user_type["name"])
         if (!User_data) {
             res.status(404).json({detail: "User not found!"})
             return;

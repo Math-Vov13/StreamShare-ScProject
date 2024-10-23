@@ -72,7 +72,7 @@ export const RegisterForm: React.FC = () => {
 
         setSuccess("Inscription réussie!");
         //Optionnel : Rediriger vers une autre page après connexion
-        router.push("/profiles");
+        router.push("/create-user");
         // router.push("/login");
       } else {
         setError(response.data.error || "Une erreur s'est produite.");
