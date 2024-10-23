@@ -2,123 +2,137 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MdOutlinePhotoCamera } from "react-icons/md";
-import { MdAddPhotoAlternate } from "react-icons/md";
+import { Form, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { UpdateUserSchema } from "@/schemas";
+import * as z from "zod";
+import axios from "@/utils/axiosConfig";
+import { toast } from "react-hot-toast";  // Import toast
+
+type UserFormValues = z.infer<typeof UpdateUserSchema>;
 
 const CreateUserProfile = () => {
-  const [name, setName] = useState("");
-  const [profileType, setProfileType] = useState("Adult");
-  const [profilePic, setProfilePic] = useState<string | null>(null); // explicitly typed as string or null
+  const [thumbnail, setThumbnail] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
 
-  // Handle image upload
+  // Use shadcn Form hook
+  const form = useForm({
+    resolver: zodResolver(UpdateUserSchema),
+    defaultValues: {
+      name: "",
+      profileType: "Adult",
+    },
+  });
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setProfilePic(URL.createObjectURL(file));
+      setThumbnail(URL.createObjectURL(file)); // Preview local image
     }
   };
 
-  // Handle submission
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsPending(true); // Start the loading state
+  const handleSubmit = async (values: any) => {
+    setIsPending(true); // Set pending state
 
-    // Simulate async action, such as an API call
+    // Prepare profile data
+    const newProfile = {
+      name: values.name,
+      profileType: values.profileType,
+      thumbnail,
+    };
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate a 2-second delay for an API call
+      const response = await axios.post("/api/user-profiles", newProfile, {
+        withCredentials: false,
+      });
 
-      console.log("Profile Created", { name, profileType, profilePic });
+      if (!response) throw new Error("Failed to create profile");
 
-      // Redirect to profiles page after creation
-      router.push('/profiles');
+      // Show success toast notification
+      toast.success("Profile created successfully!");
+      router.push("/profiles");
     } catch (error) {
       console.error("Error creating profile:", error);
+      toast.error("Error creating profile");
     } finally {
-      setIsPending(false); // End the loading state
+      setIsPending(false); // Reset loading state
     }
   };
 
   return (
     <div className="flex items-center h-screen justify-center bg-gradient-to-b from-black to-purple-900">
-      <div className="w-full max-w-lg mx-auto bg-gray-900 rounded-lg shadow-md p-8">
+      <div className="w-full max-w-lg mx-auto bg-zinc-900 rounded-lg shadow-md p-8">
         <h2 className="text-4xl text-white text-center mb-8">Créer un Profil Utilisateur</h2>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="flex flex-col items-center mb-6">
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             {/* Profile Picture */}
-            <div className="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center mb-4">
-              {profilePic ? (
-                <img src={profilePic} alt="Profile Preview" className="w-full h-full rounded-full object-cover" />
-              ) : (
-                <MdOutlinePhotoCamera className="w-8 h-8"/>
-              )}
-            </div>
-
-            {/* Upload button */}
-            <label className="bg-purple-600 text-white flex flex-row items-center gap-2 px-4 py-2 rounded-md hover:bg-purple-500 cursor-pointer">
-              <MdAddPhotoAlternate className="w-6 h-6" />
-              IMPORTER UNE IMAGE
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageUpload}
-              />
-            </label>
-          </div>
-
-          {/* Name Input */}
-          <div className="mb-6">
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)} // onChange event doesn't need explicit typing here
-              placeholder="Nom du Profil"
-              className="w-full p-3 rounded-md bg-gray-800 text-white border border-gray-600"
-              required
-            />
-          </div>
-
-          {/* Profile Type (Adult / Children) */}
-          <div className="mb-6">
-            <label className="block text-white mb-2">Type de Profil</label>
-            <div className="flex items-center justify-between gap-4">
-              <label className="flex items-center text-white">
+            <div className="flex flex-col items-center">
+              <div className="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center mb-4">
+                {thumbnail ? (
+                  <img
+                    src={thumbnail}
+                    alt="Profile Preview"
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <span className="text-white">📷</span>
+                )}
+              </div>
+              <label className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-500 cursor-pointer">
+                IMPORTER UNE IMAGE
                 <input
-                  type="radio"
-                  value="Adult"
-                  checked={profileType === "Adult"}
-                  onChange={() => setProfileType("Adult")}
-                  className="mr-2"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
                 />
-                Adulte
-              </label>
-
-              <label className="flex items-center text-white">
-                <input
-                  type="radio"
-                  value="Children"
-                  checked={profileType === "Children"}
-                  onChange={() => setProfileType("Children")}
-                  className="mr-2"
-                />
-                Enfant
               </label>
             </div>
-          </div>
 
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            disabled={isPending}
-            className="w-full bg-gradient-to-r from-purple-700 to-purple-400 text-white text-lg py-3 rounded-md hover:opacity-75 transition-colors"
-          >
-            {isPending ? "Chargement..." : "AJOUTER LE PROFIL"}
-          </Button>
-        </form>
+            {/* Name Input */}
+            <FormItem>
+              <FormLabel className="text-white">Nom du Profil</FormLabel>
+              <FormControl>
+                <Input className="w-full text-white bg-zinc-800 border-none" placeholder="Nom du Profil" {...form.register("name")} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+
+            {/* Profile Type Selection */}
+            <FormItem>
+              <FormLabel className="text-white">Type de Profil</FormLabel>
+              <FormControl>
+                <RadioGroup {...form.register("profileType")} className="flex gap-6">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem className="bg-zinc-800 text-background" value="Adult" id="r1" />
+                    <Label className="text-white" htmlFor="r1">Adult</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem className="bg-zinc-800 text-background" value="Children" id="r2" />
+                    <Label className="text-white" htmlFor="r2">Children</Label>
+                  </div>
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+              disabled={isPending}
+            >
+              {isPending ? "En cours..." : "FINALISER"}
+            </Button>
+          </form>
+        </Form>
       </div>
     </div>
   );
