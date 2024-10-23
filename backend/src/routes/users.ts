@@ -27,6 +27,7 @@ router.get("/users",
 
     async (req: Request, res: Response) => {
         const { name } = req.query;
+        console.log("GET /users")
 
         // Retourne tous les utilisateurs
         if (!name) { // Si 'Name' est vide, envoyé la liste de tous les utilisateurs
@@ -85,9 +86,11 @@ router.get("/users",
 router.post("/users",
     validate_group_token,
     body_data_validation(create_user_schema),
+    
 
     async (req: Request, res: Response) => {
         const { name, thumbnail, type } = req.body;
+        console.log("POST /users")
 
         const created = await create_user(req.group?.id as group_type["id"], name as user_type["name"], thumbnail as user_type["thumbnail"], type as user_type["type"]);
         if (created) {

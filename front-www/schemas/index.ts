@@ -31,6 +31,6 @@ export const RegisterSchema = z.object({
 
 export const UpdateUserSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  thumnail: z.string().min(1, "Thumbnail is required"),
-  profileType: z.enum(["Adult", "Children"], { message: "Profile type is required" }),
+  thumbnail: z.string().min(1, "Thumbnail is required"),
+  profileType: z.enum(["Adult", "Children"]).default("Adult"), // Default to "Adult"
 });
