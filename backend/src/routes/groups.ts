@@ -16,7 +16,14 @@ router.get("/",
         // const group_data = await get_group_by_id(req.group?.id as string);
 
         // if (! group_data) { res.sendStatus(404); return; }; // Not Found!
-        res.json({response: req.group?.id});
+
+        res.json({
+            response:
+            {
+                name: req.group?.name,
+                subscription: req.group?.subscription
+            }
+        });
         
         return;
     }

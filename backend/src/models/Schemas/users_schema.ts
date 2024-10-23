@@ -19,6 +19,13 @@ export type user_type = {
     group_id: string
 }
 
+export type secured_users_type = {
+    name: string,
+    thumbnail: string,
+    type: account_type,
+    admin: boolean
+}
+
 
 
 export const user_login_schema = yup.object({

@@ -18,9 +18,14 @@ const groups_schema_1 = require("../models/Schemas/groups_schema");
 const router = (0, express_1.Router)();
 router.get("/", validate_token_1.validate_group_token, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // const group_data = await get_group_by_id(req.group?.id as string);
-    var _a;
+    var _a, _b;
     // if (! group_data) { res.sendStatus(404); return; }; // Not Found!
-    res.json({ response: (_a = req.group) === null || _a === void 0 ? void 0 : _a.id });
+    res.json({
+        response: {
+            name: (_a = req.group) === null || _a === void 0 ? void 0 : _a.name,
+            subscription: (_b = req.group) === null || _b === void 0 ? void 0 : _b.subscription
+        }
+    });
     return;
 }));
 router.post("/", (0, data_validation_1.body_data_validation)(groups_schema_1.create_group_schema), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
