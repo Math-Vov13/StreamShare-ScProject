@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 // import { useUser } from "@/context/UserContext"; // Assuming you have UserContext set up
 import Image from "next/image";
+import AdditionalUser from "@/components/profiles/additional-user";
 
 // Profile page component
 const Profiles = () => {
@@ -33,8 +34,8 @@ const Profiles = () => {
 
         {/* Profile section */}
         <div className="flex items-center justify-center gap-8 mt-10">
-          <div>
-            <div className="flex-row w-44 mx-auto">
+          <div className="flex flex-row">
+            <div className="w-44 mx-auto">
               {/* Profile image */}
               <div
                 onClick={() => router.push('/')} // Navigate to home on click
@@ -62,6 +63,8 @@ const Profiles = () => {
                 </div>
               </div>
             </div>
+            <AdditionalUser />
+
           </div>
         </div>
       </div>
