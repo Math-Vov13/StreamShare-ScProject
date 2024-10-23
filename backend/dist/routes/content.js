@@ -23,8 +23,6 @@ router.get("/", validate_token_1.validate_user_token,
     const Condition1 = Object.keys(req.body).length == 0; // Renvoie les trends (quand l'utilisateur se connecte sur la page d'accueil)
     // Les valeurs du body de la requête sont vides
     const Condition2 = !req.body.fulfilname && (((_a = req.body.categories) === null || _a === void 0 ? void 0 : _a.length) || Array().length) == 0 && (((_b = req.body.tags) === null || _b === void 0 ? void 0 : _b.length) || Array().length) == 0; // Renvoie les trends (quand l'utilisateur efface sa recherche)
-    console.log("Condition1:", Condition1);
-    console.log("Condition2:", Condition2);
     if (Condition1 || Condition2) {
         const search_results = yield (0, content_func_1.search_trends)();
         let secured_search_results = Array();

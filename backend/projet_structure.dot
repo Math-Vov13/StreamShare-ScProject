@@ -1,0 +1,8 @@
+digraph G {
+    node [shape=box];
+
+    "src/main.py" -> "src/utils/helpers.py";
+    "src/main.py" -> "src/config/settings.py";
+    "src/utils/helpers.py" -> "src/utils/validators.py";
+    "src/config/settings.py" -> "src/config/constants.py";
+}

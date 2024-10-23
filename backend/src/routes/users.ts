@@ -4,7 +4,7 @@ import { get_user, get_users_in_group, create_user, update_user, delete_user, ge
 import { create_user_token } from "../routes/auth_users";
 
 // Types + Validation Middleware
-import { user_login_schema, create_user_schema, update_user_schema, user_type, secured_users_type } from "../models/Schemas/users_schema";
+import { user_login_schema, create_user_schema, update_user_schema, user_type, secured_users_type, update_user_type } from "../models/Schemas/users_schema";
 import { body_data_validation, query_data_validation } from "../middlewares/routes/data_validation";
 import { validate_group_token } from "../middlewares/routes/validate_token";
 import { group_login_schema, group_type } from "../models/Schemas/groups_schema";
@@ -27,18 +27,13 @@ router.get("/users",
 
     async (req: Request, res: Response) => {
         const { name } = req.query;
-        console.log("GET /users")
 
         // Retourne tous les utilisateurs
         if (!name) { // Si 'Name' est vide, envoyé la liste de tous les utilisateurs
-            console.log("Cookies:", req.cookies)
             const user_token: string | null = req.cookies["tokenU"]
-            console.log("Cookie:", user_token)
             if (user_token) {
                 const decoded_token = await decodeToken(user_token as string, Token_Type.User) as JwtPayload
-                console.log("Decoded:", decoded_token)
                 const User_data = await get_user_by_id(decoded_token.usrid as user_type["id"])
-                console.log("User:", User_data)
 
                 if (!User_data) {
                     res.status(404).json({detail: "User not found!"})
@@ -90,7 +85,6 @@ router.post("/users",
 
     async (req: Request, res: Response) => {
         const { name, thumbnail, type } = req.body;
-        console.log("POST /users")
 
         const created = await create_user(req.group?.id as group_type["id"], name as user_type["name"], thumbnail as user_type["thumbnail"], type as user_type["type"]);
         if (created) {
@@ -128,7 +122,7 @@ router.put("/users",
         }
 
 
-        const updated = await update_user(user_data.id, Changes as Array<user_type["name"] | user_type["thumbnail"]>);
+        const updated = await update_user(user_data.id, Changes as update_user_type);
         if (updated) {
             res.status(200).send({detail: "User updated!"})
         } else {

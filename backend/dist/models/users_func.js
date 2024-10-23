@@ -100,6 +100,8 @@ function update_user(id, changes) {
         try {
             const results = yield (0, db_connector_1.query)(`UPDATE ${users_schema_1.table_user_name}
             SET updated_at=NOW()
+            ${changes.name ? ", name='" + changes.name + "'" : ""}
+            ${changes.thumbnail ? ", thumbnail='" + changes.thumbnail + "'" : ""}
             WHERE id='${id}'`); // Requête
         }
         catch (db_error) {

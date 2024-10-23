@@ -48,9 +48,6 @@ function search_trends() {
 function search_content() {
     return __awaiter(this, arguments, void 0, function* (fulfil_name = "", genres = [], tags = []) {
         let results = Array(); // Liste contenant les contenus proposés par la BDD
-        console.log(fulfil_name);
-        console.log(genres);
-        console.log(tags);
         try {
             const results = yield (0, db_connector_1.query)(`SELECT * FROM ${content_schema_1.content_table_name}
             WHERE title LIKE '${fulfil_name}%'

@@ -1,4 +1,4 @@
-import { update_user_schema, user_type, table_user_name } from "./Schemas/users_schema";
+import { update_user_schema, user_type, table_user_name, update_user_type } from "./Schemas/users_schema";
 import { content_type } from "./Schemas/content_schema";
 import { query } from "../models/db-connector";
 import { format } from 'date-fns';
@@ -87,7 +87,7 @@ export async function user_watched_content(id: user_type["id"], content_id: cont
 }
 
 
-export async function update_user(id: user_type["id"], changes: Array<string>) {
+export async function update_user(id: user_type["id"], changes: update_user_type) {
     let user_data = await get_user_by_id(id)
     if (!user_data) {
         return false; // L'utilisateur n'existe pas ?!
@@ -97,6 +97,8 @@ export async function update_user(id: user_type["id"], changes: Array<string>) {
         const results: QueryResult<user_type> = await query(
             `UPDATE ${table_user_name}
             SET updated_at=NOW()
+            ${ changes.name ? ", name='"+ changes.name + "'" : "" }
+            ${ changes.thumbnail ? ", thumbnail='"+ changes.thumbnail + "'" : "" }
             WHERE id='${id}'`); // Requête
 
     } catch (db_error) {

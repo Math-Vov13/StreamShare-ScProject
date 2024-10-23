@@ -24,6 +24,7 @@ const router = (0, express_1.Router)();
 router.get("/users", validate_token_1.validate_group_token, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const { name } = req.query;
+    console.log("GET /users");
     // Retourne tous les utilisateurs
     if (!name) { // Si 'Name' est vide, envoyé la liste de tous les utilisateurs
         console.log("Cookies:", req.cookies);
@@ -75,6 +76,7 @@ router.get("/users", validate_token_1.validate_group_token, (req, res) => __awai
 router.post("/users", validate_token_1.validate_group_token, (0, data_validation_1.body_data_validation)(users_schema_1.create_user_schema), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { name, thumbnail, type } = req.body;
+    console.log("POST /users");
     const created = yield (0, users_func_1.create_user)((_a = req.group) === null || _a === void 0 ? void 0 : _a.id, name, thumbnail, type);
     if (created) {
         // req.query = { name: name }

@@ -26,6 +26,11 @@ export type secured_users_type = {
     admin: boolean
 }
 
+export type update_user_type = {
+    name: string,
+    thumbnail: string
+}
+
 
 
 export const user_login_schema = yup.object({
