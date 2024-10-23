@@ -28,3 +28,9 @@ export const RegisterSchema = z.object({
     .string()
     .min(1, { message: "You must choose a subscription" }),
 });
+
+export const UpdateUserSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  thumnail: z.string().min(1, "Thumbnail is required"),
+  profileType: z.enum(["Adult", "Children"], { message: "Profile type is required" }),
+});

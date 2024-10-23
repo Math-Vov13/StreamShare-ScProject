@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Figtree } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 // import { UserProvider } from "@/context/UserContext";
 
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={font.className}>
         {children}
+        <Toaster position="top-center" reverseOrder={false} />
       </body>
     </html>
   );
