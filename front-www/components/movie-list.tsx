@@ -45,7 +45,7 @@ const MovieList = () => {
   // Render the list of movies
   return (
     <div className="text-white">
-      <h1 className="text-white text-md md:text-xl lg:text-2xl font-semibold">Trending Now</h1>
+      <h1 className="text-white text-md md:text-xl lg:text-2xl font-semibold mt-2 mb-2">Trending Now</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {movies.map((movie) => (
           <MovieCard 
