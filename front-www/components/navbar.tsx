@@ -1,10 +1,10 @@
+import React, { useEffect, useCallback, useState } from "react";
 import NavBarItem from "@/components/navbar-item";
 import { BsChevronDown, BsSearch, BsBell } from "react-icons/bs";
 import MobileMenu from "@/components/mobile-menu";
-import { useEffect, useCallback, useState } from "react";
 import AccountMenu from "@/components/account-menu";
 import { useUser } from "@/context/UserContext";
-import axios from "@/utils/axiosConfig"; // Make sure to import your axios config
+import axios from "@/utils/axiosConfig";
 
 const TOP_OFFSET = 66;
 
@@ -12,34 +12,29 @@ const Navbar = () => {
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const [showAccountMenu, setShowAccountMenu] = useState(false);
     const [showBackground, setShowBackground] = useState(false);
-    
     const { user } = useUser(); // Access user context
-    const [profile, setProfile] = useState({ name: "", thumbnail: "" }); // State for profile data
+    const [profile, setProfile] = useState({ name: '', thumbnail: '' });
 
     const toggleMobileMenu = useCallback(() => {
         setShowMobileMenu((current) => !current);
     }, []);
-    
+
     const toggleAccountMenu = useCallback(() => {
         setShowAccountMenu((current) => !current);
     }, []);
 
     useEffect(() => {
         const handleScroll = () => {
-            if (window.scrollY >= TOP_OFFSET) {
-                setShowBackground(true);
-            } else {
-                setShowBackground(false);
-            }
+            setShowBackground(window.scrollY >= TOP_OFFSET);
         };
-
+        
         window.addEventListener('scroll', handleScroll);
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
     }, []);
-    
-    // Fetch user profile data when the component mounts
+
+    // Fetch user profile data when the user context is available
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
@@ -56,13 +51,11 @@ const Navbar = () => {
         if (user) { // Only fetch if user is logged in (i.e., user context is available)
             fetchUserProfile();
         }
-    }, [user]);
+    }, [user]); // Dependency array includes `user`
 
-    return ( 
+    return (
         <nav className="w-full fixed z-40">
-            <div 
-                className={`w-full px-4 md:px-16 py-6 flex flex-row items-center transition duration-500 ${showBackground ? 'bg-zinc-900 bg-opacity-90' : ''}`}
-            >
+            <div className={`w-full px-4 md:px-16 py-6 flex flex-row items-center transition duration-500 ${showBackground ? 'bg-zinc-900 bg-opacity-90' : ''}`}>
                 <img src="/logo-streamshare-form.png" alt="logo" className="h-[85px] lg:h-[125px]" />
                 <div className="flex-row ml-8 gap-7 hidden lg:flex">
                     <NavBarItem label="Accueil"/>
@@ -86,11 +79,10 @@ const Navbar = () => {
                     </div>
                     <div onClick={toggleAccountMenu} className="flex flex-row items-center gap-2 cursor-pointer relative">
                         <div className="w-6 h-6 lg:w-10 lg:h-10 rounded-full overflow-hidden">
-                            <img src={profile.thumbnail || "/goku-pp.jpg"} alt="account profile picture" /> {/* Default to a placeholder if thumbnail is not available */}
+                            <img src={profile.thumbnail || '/goku-pp.jpg'} alt="account profile picture" /> {/* Use profile thumbnail or default */}
                         </div>
                         <BsChevronDown className={`text-violet-200 transition ${showAccountMenu ? "rotate-180" : "rotate-0"}`}/>
-                        {/* Pass the user's name to the AccountMenu */}
-                        <AccountMenu visible={showAccountMenu}/> {/* Fallback to "Guest" if name is not available */}
+                        <AccountMenu visible={showAccountMenu}/> {/* Pass user name */}
                     </div>
                 </div>
             </div>

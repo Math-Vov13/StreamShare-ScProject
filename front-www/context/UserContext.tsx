@@ -1,8 +1,9 @@
 "use client";
 
 import React, { createContext, useState, useEffect, useContext } from "react";
-import axios from "@/utils/axiosConfig";
+import axios from "@/utils/axiosConfig"; // Import the axios config
 import { useRouter } from "next/navigation";
+import Cookies from 'js-cookie'; // Import a library to handle cookies
 
 // Define the shape of the UserContext data
 interface UserContextType {
@@ -11,8 +12,10 @@ interface UserContextType {
   logout: () => void;
 }
 
+// Create the UserContext
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
+// Custom hook to use UserContext easily
 export const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {
@@ -21,11 +24,14 @@ export const useUser = () => {
   return context;
 };
 
+// UserProvider component
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<{ name: string; thumbnail: string } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
+    
+
     const fetchUserData = async () => {
       try {
         const response = await axios.get('/api/v1/groups/users');
@@ -37,17 +43,22 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
     };
-
     fetchUserData();
   }, []);
 
+  
+  // Handle logout: remove only the 'tokenU' cookie and reset user
   const logout = async () => {
     try {
-      await axios.delete('/api/v1/groups/users/auth');
-      setUser(null);
-      router.push('/login');
+      await axios.delete('/api/v1/groups/users/auth', { withCredentials: true }); // Call the logout API if necessary
     } catch (error) {
       console.error("Logout Error:", error);
+    } finally {
+      Cookies.remove('tokenU'); // Remove only 'tokenU' cookie
+      setUser(null); // Clear user data
+
+      // Redirect to '/profiles' after logout instead of '/login'
+      router.push('/profiles');
     }
   };
 
