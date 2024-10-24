@@ -26,6 +26,8 @@ const Watch = ({ params }: { params: { content_id: string } }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const cloudFrontUrl = 'https://d13mrx6brjrhcg.cloudfront.net';
+
   useEffect(() => {
     const fetchMovieDetails = async () => {
       try {
@@ -59,11 +61,16 @@ const Watch = ({ params }: { params: { content_id: string } }) => {
     : 'Unknown';
 
   // Video URL (ensure it's an absolute path or fully qualified URL)
-  const videoUrl = `/videos/${movieDetails.video_key}`; // Adjust as needed if using an absolute URL
+  const videoUrl = `${cloudFrontUrl}/${movieDetails.video_key}`;
 
   return (
     <div className="flex flex-col items-center bg-zinc-800 min-h-screen p-4">
-      {/* Title */}
+      <img 
+        src="/logo-streamshare-form.png" 
+        alt="Streamshare logo" 
+        className='w-[300px] mb-4' />
+      
+      
       <h1 className="text-white text-2xl mb-4 font-bold">{movieDetails.title}</h1>
       
       {/* Video Player */}
