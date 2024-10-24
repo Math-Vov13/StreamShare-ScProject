@@ -1,66 +1,62 @@
 "use client";
 
-import React from 'react';
-
-// Define the movie type based on your JSON data structure
-interface Movie {
-  titre: string;
-  description: string;
-  duree: number;
-  dateSortie: string;
-  image: string;
-  url: string;
-}
-
-// Dummy movie data. Ideally, you'd replace this with an API call if dynamic content is required.
-const trendingMovies: Movie[] = [
-  {
-    titre: "Inception",
-    description: "Inception is a science fiction action film written and directed by Christopher Nolan.",
-    duree: 148,
-    dateSortie: "2010-07-16",
-    image: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_.jpg",
-    url: "https://www.imdb.com/title/tt1375666/"
-  },
-  {
-    titre: "The Dark Knight",
-    description: "The Dark Knight is a superhero thriller film directed by Christopher Nolan.",
-    duree: 162,
-    dateSortie: "2008-07-18",
-    image: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_.jpg",
-    url: "https://www.imdb.com/title/tt0468569/"
-  },
-  {
-    titre: "Interstellar",
-    description: "Interstellar is a science fiction film directed by Christopher Nolan.",
-    duree: 169,
-    dateSortie: "2014-11-05",
-    image: "https://m.media-amazon.com/images/M/MV5BMjIxNTU4MzY4MF5BMl5BanBnXkFtZTgwMzM4ODI3MjE@._V1_.jpg",
-    url: "https://www.imdb.com/title/tt0816692/"
-  },
-];
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import MovieCard from './movie-card'; // Import the MovieCard component
 
 const MovieList = () => {
+  // State to store movies
+  const [movies, setMovies] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Function to fetch movies from the API
+  const fetchMovies = async () => {
+    try {
+      const response = await axios.get('api/v1/search');
+      // Access the 'response' property of the returned data
+      if (Array.isArray(response.data.response)) {
+        setMovies(response.data.response); // Set movies to the array
+      } else {
+        throw new Error('Expected an array of movies');
+      }
+    } catch (error: any) {
+      setError(error.message); // Capture error message
+    } finally {
+      setLoading(false); // Set loading to false
+    }
+  };
+
+  // Use useEffect to fetch movies on component mount
+  useEffect(() => {
+    fetchMovies();
+  }, []);
+
+  // Loading state
+  if (loading) {
+    return <div className="text-white">Loading...</div>;
+  }
+
+  // Error state
+  if (error) {
+    return <div className="text-red-500">Error: {error}</div>;
+  }
+
+  // Render the list of movies
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-8">
-      {trendingMovies.map((movie) => (
-        <a
-          key={movie.titre}
-          href={movie.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
-        >
-          <img
-            src={movie.image}
-            alt={movie.titre}
-            className="object-cover w-full h-64 group-hover:scale-105 transition-transform duration-300"
+    <div className="text-white">
+      <h1 className="text-white text-md md:text-xl lg:text-2xl font-semibold">Trending Now</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {movies.map((movie) => (
+          <MovieCard 
+            key={movie.id} 
+            id={movie.id} 
+            title={movie.title} 
+            thumbnail={movie.thumbnail} 
+            note={movie.note} 
           />
-          <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <h3 className="text-white text-lg font-bold">{movie.titre}</h3>
-          </div>
-        </a>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };
