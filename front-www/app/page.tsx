@@ -7,16 +7,13 @@ import Navbar from "@/components/navbar";
 import Billboard from "@/components/billboard";
 import MovieList from "@/components/movie-list";
 
+import { useUser } from "@/context/UserContext";
+
 
 export default function Home() {
-  // const { user } = useUser(); // Get the user data from UserContext
   
-  // if (!user) {
-  //   return <p className="text-white text-center">Loading...</p>;
-    
-  // }
-
-
+  
+  
   return (
     <div className="flex flex-col w-full h-screen bg-gradient-to-b from-black to-purple-500">
       <Navbar/>

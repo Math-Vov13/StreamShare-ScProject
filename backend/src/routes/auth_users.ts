@@ -39,8 +39,7 @@ router.post("/users/auth",
 )
 
 router.delete("/users/auth",
-    validate_group_token,
-
+    
     async (_req: Request, res: Response) => {  
 
         // Supprime les cookies

@@ -1,6 +1,6 @@
 import React from "react";
 import { CiLogout } from "react-icons/ci";
-// import { useUser } from "@/context/UserContext";
+import { useUser } from "@/context/UserContext";
 
 interface AccountMenuProps {
     visible?: boolean
@@ -15,7 +15,7 @@ const AccountMenu: React.FC<AccountMenuProps> = ({
         return null;
     }
 
-    // const { logout } = useUser();
+    const { logout } = useUser();
     return ( 
         <div className="bg-black w-56 absolute top-14 right-0 py-5 px-2 flex-col border-2 border-transparent flex">
             <div className="flex flex-col gap-3">
@@ -26,7 +26,7 @@ const AccountMenu: React.FC<AccountMenuProps> = ({
                     </p>
                 </div>
                 <hr className="bg-gray-600 border-0 h-px my-4" />
-                <div className="flex flex-row items-center justify-center gap-3 px-3 text-center text-white hover:underline">
+                <div className="flex flex-row items-center justify-center gap-3 px-3 text-center text-white hover:underline" onClick={logout}>
                     <CiLogout />
                     <span>Logout</span>
                 </div>

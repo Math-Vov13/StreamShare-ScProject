@@ -1,8 +1,9 @@
 "use client";
 
 import React, { createContext, useState, useEffect, useContext } from "react";
-import axios from "@/utils/axiosConfig"; // Import the axios config you created
+import axios from "@/utils/axiosConfig"; // Import the axios config
 import { useRouter } from "next/navigation";
+import Cookies from 'js-cookie'; // Import a library to handle cookies
 
 // Define the shape of the UserContext data
 interface UserContextType {
@@ -29,37 +30,39 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch user data with the token included in cookies
-    axios.get('/api/v1/groups/users')
-      .then(response => {
-        setUser(response.data.response); // Assuming response contains the user data
-      })
-      .catch(error => {
-        console.error('Error fetching user data:', error);
-        if (error.response?.status === 401) {
-          // If unauthorized, redirect to login page
-          router.push('/login');
-        }
-      });
-  }, []);
+    const token = Cookies.get('token');
+    const tokenU = Cookies.get('tokenU');
 
-  // Redirect to /profiles if user is logged in
-  useEffect(() => {
-    if (user) {
-      router.push('/profiles'); // Redirect to profiles page
+    if (token && tokenU) { // Only make the request if tokens exist
+      axios.get('/api/v1/groups/users')
+        .then(response => {
+          setUser(response.data.response); // Assuming response contains the user data
+        })
+        .catch(error => {
+          console.error('Error fetching user data:', error);
+          if (error.response?.status === 401) {
+            // If unauthorized, redirect to login page
+            router.push('/login');
+          }
+        });
     }
-  }, [user, router]);
+  }, [router]);
 
+  // Handle logout: remove only the 'tokenU' cookie and reset user
   const logout = async () => {
     try {
-      await axios.delete('/api/v1/groups/users/auth'); // Call the logout API
+        await axios.delete('/api/v1/groups/users/auth', {
+            withCredentials: true, // Envoie des cookies avec la requête
+        });
     } catch (error) {
-      console.error("Logout Error:", error);
+        console.error("Logout Error:", error);
     } finally {
-      setUser(null); // Clear user data
-      router.push('/login'); // Redirect to login page after logout
+        Cookies.remove('tokenU'); // Supprime le cookie du client si nécessaire
+        setUser(null); // Réinitialise l'état utilisateur
+        router.push('/profiles'); // Redirige vers les profils
     }
-  };
+};
+
 
   return (
     <UserContext.Provider value={{ user, setUser, logout }}>
