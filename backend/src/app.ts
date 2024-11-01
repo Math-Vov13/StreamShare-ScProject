@@ -9,11 +9,17 @@ import groupRoute from "./routes/groups";
 import authUsrRoute from "./routes/auth_users";
 import contentRoute from "./routes/content";
 import cors from "cors";
+import { exit } from "process";
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT;
+
+if (port === undefined) { // Vous devez créer un fichier .env !
+  console.error("Vous n'avez pas d'environnement local. Regardez le README.md pour plus d'informations.");
+  exit(1);
+}
 
 
 

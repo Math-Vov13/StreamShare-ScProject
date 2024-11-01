@@ -1,3 +1,0 @@
-atlasAdmin: Permissions
-    Username: thomashelbysigma01
-    Password: F9kC3agPSlRLoUY4
