@@ -26,7 +26,7 @@ const Watch = ({ params }: { params: { content_id: string } }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const cloudFrontUrl = 'https://d13mrx6brjrhcg.cloudfront.net';
+  const cloudFrontUrl = process.env.CLOUDFRONT_URL;
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
@@ -125,9 +125,6 @@ const Watch = ({ params }: { params: { content_id: string } }) => {
         
         {/* Tags */}
         <p className="mb-2"><strong>Tags:</strong> {movieDetails.tags.join(', ')}</p>
-        
-        {/* Type of Content */}
-        <p className="mb-2"><strong>Content Type:</strong> {movieDetails.type_content}</p>
       </div>
     </div>
   );
