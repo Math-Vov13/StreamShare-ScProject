@@ -191,4 +191,4 @@ yarn test
 
 <li> Nom de l'Auteur : Rayane</li>
 <li> Email : rayane.achouchi@efrei.net</li>
-<li> GitHub : https://github.com/Enayarefrei</li>
+<li> GitHub : https://github.com/RayaneChCh-dev</li>
